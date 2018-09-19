@@ -90,6 +90,8 @@ float obtainAccelerationYAxis();
 float obtainAccelerationZAxis();
 float angleFromProjections(float secondaryCatheter, float primaryCatheter_1, float primaryCatheter_2);
 struct AngleOfRotationXYZAxis obtainCurrentAngleOfRotation();
+struct AngleOfRotationXYZAxis createStartAngleOfRotation();
+struct AngleOfRotationXYZAxis obtainCurrentAngleOfRotationWithStart(struct AngleOfRotationXYZAxis xyzStartAngles);
 
 void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
                                 
@@ -130,13 +132,30 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 //	volatile int16_t valueGyro = 0;
-	struct AngleOfRotationXYZAxis axyzAngles = {0,0,0};
+	struct AngleOfRotationXYZAxis xyzStartAngles = createStartAngleOfRotation();
+	struct AngleOfRotationXYZAxis xyzCurrentWithStartAngles = {0,0,0};
   while (1)
   {
-		axyzAngles = obtainCurrentAngleOfRotation();
+		xyzCurrentWithStartAngles = obtainCurrentAngleOfRotationWithStart(xyzStartAngles);
+		
 //		valueGyro = Gyro();
 //		ledBlinkWithFrequency(valueGyro);
   }
+}
+
+struct AngleOfRotationXYZAxis createStartAngleOfRotation()
+{
+	return obtainCurrentAngleOfRotation();
+}
+
+struct AngleOfRotationXYZAxis obtainCurrentAngleOfRotationWithStart(struct AngleOfRotationXYZAxis xyzStartAngles)
+{
+	struct AngleOfRotationXYZAxis xyzAngles = {0,0,0};
+	xyzAngles.xAngle = obtainCurrentAngleOfRotation().xAngle - xyzStartAngles.xAngle;
+	xyzAngles.yAngle = obtainCurrentAngleOfRotation().yAngle - xyzStartAngles.yAngle;
+	xyzAngles.zAngle = obtainCurrentAngleOfRotation().zAngle - xyzStartAngles.zAngle;
+	
+	return xyzAngles;
 }
 
 struct AngleOfRotationXYZAxis obtainCurrentAngleOfRotation()
@@ -145,7 +164,7 @@ struct AngleOfRotationXYZAxis obtainCurrentAngleOfRotation()
 	axyzAxis.ax = obtainAccelerationXAxis();
 	axyzAxis.ay = obtainAccelerationYAxis();
 	axyzAxis.az = obtainAccelerationZAxis();
-	
+
 	struct AngleOfRotationXYZAxis xyzAngles = {0,0,0};
 	xyzAngles.xAngle = angleFromProjections(axyzAxis.ax, axyzAxis.ay, axyzAxis.az);
 	xyzAngles.yAngle = angleFromProjections(axyzAxis.ay, axyzAxis.az, axyzAxis.ax);
@@ -157,7 +176,7 @@ struct AngleOfRotationXYZAxis obtainCurrentAngleOfRotation()
 float angleFromProjections(float secondaryCatheter, float primaryCatheter_1, float primaryCatheter_2)
 {
 	float hypotenuse = sqrt(pow(primaryCatheter_1,2) + pow(primaryCatheter_2,2));
-	return (atan2(secondaryCatheter, hypotenuse) * 180 / M_PI);
+	return 90 - (atan2(secondaryCatheter, hypotenuse) * 180 / M_PI);
 }
 
 float obtainAccelerationXAxis()
