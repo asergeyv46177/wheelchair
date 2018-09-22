@@ -43,10 +43,41 @@
 
 #include "main.h"
 #include "stm32f4xx_hal.h"
-#include <math.h>
+#include "math.h"
+#include "stdbool.h"
 
 
-#define M_PI       3.16159265358979323846
+/*
+Constants
+*/
+#define M_PI	3.16159265358979323846
+#define T_SEC	12288000
+
+/*
+Controls
+*/
+#define SCS_Gyroscope_isEnable	0x1
+#define SCS_Joystick_isEnable	0x2
+#define SCS_Settings_isEnable	0x3
+
+/*
+Sensitivity
+*/
+#define SCS_Sensitivity_Low	1
+#define SCS_Sensitivity_Normal	2
+#define SCS_Sensitivity_Hight	3
+
+/*
+Sensitivity settings
+*/
+#define SCS_GyroscopeValueForLow_Y	-30
+#define SCS_GyroscopeValueForHight_Y	30
+
+/*
+Interrupt
+*/
+#define SCS_AccelerometerLimit	0.8
+#define SCS_ADCVoltageLimit	0x0
 
 
 ADC_HandleTypeDef hadc1;
@@ -58,12 +89,11 @@ I2C_HandleTypeDef hi2c1;
 
 TIM_HandleTypeDef htim1;
 
-
-struct AccelerationXYZAxis
+struct GyroscopeValueXYZ
 {
-	float ax;
-	float ay;
-	float az;
+	float xGValue;
+	float yGValue;
+	float zGValue;
 };
 
 struct AngleOfRotationXYZAxis
@@ -80,21 +110,34 @@ static void MX_ADC2_Init(void);
 static void MX_DAC_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_TIM1_Init(void);
-void ledBlinkWithFrequency(int frequency);
+void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
+
+void ledBlinkWithCountBlink(int countBlink);
+void waitForExpectedBehavior();
+void ledBlinkWithFrequency(float frequency);
 
 void prepareI2C();
 int readI2C(int addr);
 
+float obtainGyroscopeValueX();
+float obtainGyroscopeValueY();
+float obtainGyroscopeValueZ();
+
 float obtainAccelerationXAxis();
 float obtainAccelerationYAxis();
 float obtainAccelerationZAxis();
+
 float angleFromProjections(float secondaryCatheter, float primaryCatheter_1, float primaryCatheter_2);
 struct AngleOfRotationXYZAxis obtainCurrentAngleOfRotation();
 struct AngleOfRotationXYZAxis createStartAngleOfRotation();
-struct AngleOfRotationXYZAxis obtainCurrentAngleOfRotationWithStart(struct AngleOfRotationXYZAxis xyzStartAngles);
+struct AngleOfRotationXYZAxis obtainCurrentAngleOfRotationWithStartAngle();
+struct GyroscopeValueXYZ obtainCurrentGyroscopeValue();
 
-void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
-                                
+void sensitivitySetting(float yGValue);
+
+struct AngleOfRotationXYZAxis xyzStartAngles = {0,0,0};
+int sensitivity = SCS_Sensitivity_Normal;
+int controlFlag = SCS_Gyroscope_isEnable;
 
 int main(void)
 {
@@ -132,15 +175,65 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 //	volatile int16_t valueGyro = 0;
-	struct AngleOfRotationXYZAxis xyzStartAngles = createStartAngleOfRotation();
-	struct AngleOfRotationXYZAxis xyzCurrentWithStartAngles = {0,0,0};
+	struct AngleOfRotationXYZAxis xyzCurrentAnglesWithStartAngles = {0,0,0};
+	struct GyroscopeValueXYZ xyzCurrentGValue = {0,0,0};
+	xyzStartAngles = createStartAngleOfRotation();
   while (1)
   {
-		xyzCurrentWithStartAngles = obtainCurrentAngleOfRotationWithStart(xyzStartAngles);
-		
+//		xyzCurrentAnglesWithStartAngles = obtainCurrentAngleOfRotationWithStartAngle(); 
+		xyzCurrentGValue = obtainCurrentGyroscopeValue();
+		if (xyzCurrentGValue.yGValue > SCS_AccelerometerLimit)
+		{
+			sensitivitySetting(xyzCurrentGValue.yGValue);
+		}
 //		valueGyro = Gyro();
-//		ledBlinkWithFrequency(valueGyro);
+//		ledBlinkWithFrequency(1);
   }
+}
+
+void sensitivitySetting(float yGValue)
+{
+	ledBlinkWithCountBlink(4);
+	waitForExpectedBehavior();
+	controlFlag = SCS_Settings_isEnable;
+	while(controlFlag == SCS_Settings_isEnable)
+	{
+		float xAngle = obtainCurrentAngleOfRotationWithStartAngle().xAngle;
+		if (xAngle > SCS_GyroscopeValueForHight_Y)
+		{
+			sensitivity = SCS_Sensitivity_Hight;
+			ledBlinkWithFrequency(0.1);
+		}
+		else if (xAngle > SCS_GyroscopeValueForLow_Y)
+		{
+			sensitivity = SCS_Sensitivity_Normal;
+			ledBlinkWithFrequency(0.5);
+		}
+		else 
+		{
+			sensitivity = SCS_Sensitivity_Low;
+			ledBlinkWithFrequency(1);
+		}
+		
+		yGValue = obtainGyroscopeValueY();
+		if (yGValue > SCS_AccelerometerLimit)
+		{
+			controlFlag = SCS_Gyroscope_isEnable;
+		}
+		// Uchest', chto zdes' mojet srabotat' joystick
+	}
+	ledBlinkWithCountBlink(2);
+}
+
+struct GyroscopeValueXYZ obtainCurrentGyroscopeValue()
+{
+	struct GyroscopeValueXYZ gValueXYZ = {0,0,0};
+	
+	gValueXYZ.xGValue = obtainGyroscopeValueX();
+	gValueXYZ.yGValue = obtainGyroscopeValueY();
+	gValueXYZ.zGValue = obtainGyroscopeValueZ();
+	
+	return gValueXYZ;
 }
 
 struct AngleOfRotationXYZAxis createStartAngleOfRotation()
@@ -148,7 +241,7 @@ struct AngleOfRotationXYZAxis createStartAngleOfRotation()
 	return obtainCurrentAngleOfRotation();
 }
 
-struct AngleOfRotationXYZAxis obtainCurrentAngleOfRotationWithStart(struct AngleOfRotationXYZAxis xyzStartAngles)
+struct AngleOfRotationXYZAxis obtainCurrentAngleOfRotationWithStartAngle()
 {
 	struct AngleOfRotationXYZAxis xyzAngles = {0,0,0};
 	xyzAngles.xAngle = obtainCurrentAngleOfRotation().xAngle - xyzStartAngles.xAngle;
@@ -160,15 +253,14 @@ struct AngleOfRotationXYZAxis obtainCurrentAngleOfRotationWithStart(struct Angle
 
 struct AngleOfRotationXYZAxis obtainCurrentAngleOfRotation()
 {
-	struct AccelerationXYZAxis axyzAxis = {0,0,0};
-	axyzAxis.ax = obtainAccelerationXAxis();
-	axyzAxis.ay = obtainAccelerationYAxis();
-	axyzAxis.az = obtainAccelerationZAxis();
+	float ax = obtainAccelerationXAxis();
+	float ay = obtainAccelerationYAxis();
+	float az = obtainAccelerationZAxis();
 
 	struct AngleOfRotationXYZAxis xyzAngles = {0,0,0};
-	xyzAngles.xAngle = angleFromProjections(axyzAxis.ax, axyzAxis.ay, axyzAxis.az);
-	xyzAngles.yAngle = angleFromProjections(axyzAxis.ay, axyzAxis.az, axyzAxis.ax);
-	xyzAngles.zAngle = angleFromProjections(axyzAxis.az, axyzAxis.ax, axyzAxis.ay);
+	xyzAngles.xAngle = angleFromProjections(ax, ay, az);
+	xyzAngles.yAngle = angleFromProjections(ay, az, ax);
+	xyzAngles.zAngle = angleFromProjections(az, ax, ay);
 	
 	return xyzAngles;
 }
@@ -176,28 +268,52 @@ struct AngleOfRotationXYZAxis obtainCurrentAngleOfRotation()
 float angleFromProjections(float secondaryCatheter, float primaryCatheter_1, float primaryCatheter_2)
 {
 	float hypotenuse = sqrt(pow(primaryCatheter_1,2) + pow(primaryCatheter_2,2));
-	return 90 - (atan2(secondaryCatheter, hypotenuse) * 180 / M_PI);
+	return (atan2(secondaryCatheter, hypotenuse) * 180 / M_PI) - 90;
+}
+
+
+#pragma mark - Work with sensor 
+
+float obtainGyroscopeValueX()
+{
+	int16_t gx =(readI2C(0x43)<<8);
+	gx|=readI2C(0x44);
+	return (float)gx / 32768;
+}
+
+float obtainGyroscopeValueY()
+{
+	int16_t gy =(readI2C(0x45)<<8);
+	gy|=readI2C(0x46);
+	return (float)gy / 32768;
+}
+
+float obtainGyroscopeValueZ()
+{
+	int16_t gz =(readI2C(0x47)<<8);
+	gz|=readI2C(0x48);
+	return (float)gz / 32768;
 }
 
 float obtainAccelerationXAxis()
 {
 	int16_t ax =(readI2C(0x3B)<<8);
 	ax|=readI2C(0x3C);
-	return (float)ax / 32767;
+	return (float)ax / 32768;
 }
 
 float obtainAccelerationYAxis()
 {
 	int16_t ay =(readI2C(0x3D)<<8);
 	ay|=readI2C(0x3E);
-	return (float)ay / 32767;
+	return (float)ay / 32768;
 }
 
 float obtainAccelerationZAxis()
 {
 	int16_t az =(readI2C(0x3F)<<8);
 	az|=readI2C(0x40);
-	return (float)az / 32767;
+	return (float)az / 32768;
 }
 
 int readI2C(int addr)
@@ -312,14 +428,28 @@ void prepareI2C()
 		for(int i=0; i<0xFF; i++){}
 }
 
-void ledBlinkWithFrequency(int frequency)
+void ledBlinkWithCountBlink(int countBlink)
 {
-	HAL_GPIO_WritePin(GPIOE, GPIO_PIN_0, GPIO_PIN_SET);
-	for(int i = 0; i < frequency / 2; ++i){}
-//	HAL_Delay(frequency / 2);
+	for(int currentCountBlink = 0; currentCountBlink < countBlink; ++currentCountBlink)
+	{
+		HAL_GPIO_WritePin(GPIOE, GPIO_PIN_0, GPIO_PIN_RESET);
+		waitForExpectedBehavior();
+		HAL_GPIO_WritePin(GPIOE, GPIO_PIN_0, GPIO_PIN_SET);
+		waitForExpectedBehavior();
+	}
+}
+
+void waitForExpectedBehavior()
+{
+	for(int i = 0; i < T_SEC / 2; ++i){}
+}
+
+void ledBlinkWithFrequency(float frequency)
+{
 	HAL_GPIO_WritePin(GPIOE, GPIO_PIN_0, GPIO_PIN_RESET);
-	for(int i = 0; i < frequency / 2; ++i){}
-//	HAL_Delay(frequency / 2);
+	for(int i = 0; i < frequency * T_SEC / 10; ++i){}
+	HAL_GPIO_WritePin(GPIOE, GPIO_PIN_0, GPIO_PIN_SET);
+	for(int i = 0; i < frequency * T_SEC / 10; ++i){}
 }
 
 #pragma pop
@@ -600,7 +730,7 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
-
+	HAL_GPIO_WritePin(GPIOE, GPIO_PIN_0, GPIO_PIN_SET);
 }
 
 /* USER CODE BEGIN 4 */

@@ -36,3 +36,4 @@ stm32f407-0\main.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr_ex.h
 stm32f407-0\main.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h
 stm32f407-0\main.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h
 stm32f407-0\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
+stm32f407-0\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h

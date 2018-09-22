@@ -28,25 +28,45 @@ Project File Date:  09/11/2018
 *** Using Compiler 'V5.06 update 5 (build 528)', folder: 'C:\Keil_v5\ARM\ARMCC\Bin'
 Build target 'stm32f407-0'
 compiling main.c...
-../Src/main.c(85): warning:  #1295-D: Deprecated declaration prepareI2C - give arg types
+../Src/main.c(116): warning:  #1295-D: Deprecated declaration waitForExpectedBehavior - give arg types
+  void waitForExpectedBehavior();
+../Src/main.c(119): warning:  #1295-D: Deprecated declaration prepareI2C - give arg types
   void prepareI2C();
-../Src/main.c(88): warning:  #1295-D: Deprecated declaration obtainAccelerationXAxis - give arg types
+../Src/main.c(122): warning:  #1295-D: Deprecated declaration obtainGyroscopeValueX - give arg types
+  float obtainGyroscopeValueX();
+../Src/main.c(123): warning:  #1295-D: Deprecated declaration obtainGyroscopeValueY - give arg types
+  float obtainGyroscopeValueY();
+../Src/main.c(124): warning:  #1295-D: Deprecated declaration obtainGyroscopeValueZ - give arg types
+  float obtainGyroscopeValueZ();
+../Src/main.c(126): warning:  #1295-D: Deprecated declaration obtainAccelerationXAxis - give arg types
   float obtainAccelerationXAxis();
-../Src/main.c(89): warning:  #1295-D: Deprecated declaration obtainAccelerationYAxis - give arg types
+../Src/main.c(127): warning:  #1295-D: Deprecated declaration obtainAccelerationYAxis - give arg types
   float obtainAccelerationYAxis();
-../Src/main.c(90): warning:  #1295-D: Deprecated declaration obtainAccelerationZAxis - give arg types
+../Src/main.c(128): warning:  #1295-D: Deprecated declaration obtainAccelerationZAxis - give arg types
   float obtainAccelerationZAxis();
-../Src/main.c(92): warning:  #1295-D: Deprecated declaration obtainCurrentAngleOfRotation - give arg types
+../Src/main.c(131): warning:  #1295-D: Deprecated declaration obtainCurrentAngleOfRotation - give arg types
   struct AngleOfRotationXYZAxis obtainCurrentAngleOfRotation();
-../Src/main.c(93): warning:  #1295-D: Deprecated declaration createStartAngleOfRotation - give arg types
+../Src/main.c(132): warning:  #1295-D: Deprecated declaration createStartAngleOfRotation - give arg types
   struct AngleOfRotationXYZAxis createStartAngleOfRotation();
-../Src/main.c(136): warning:  #550-D: variable "xyzCurrentWithStartAngles"  was set but never used
-  	struct AngleOfRotationXYZAxis xyzCurrentWithStartAngles = {0,0,0};
-../Src/main.c: 7 warnings, 0 errors
+../Src/main.c(133): warning:  #1295-D: Deprecated declaration obtainCurrentAngleOfRotationWithStartAngle - give arg types
+  struct AngleOfRotationXYZAxis obtainCurrentAngleOfRotationWithStartAngle();
+../Src/main.c(134): warning:  #1295-D: Deprecated declaration obtainCurrentGyroscopeValue - give arg types
+  struct GyroscopeValueXYZ obtainCurrentGyroscopeValue();
+../Src/main.c(185): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+  		if (xyzCurrentGValue.yGValue > 
+CS_AccelerometerLimit)
+../Src/main.c(178): warning:  #177-D: variable "xyzCurrentAnglesWithStartAngles"  was declared but never referenced
+  	struct AngleOfRotationXYZAxis xyzCurrentAnglesWithStartAngles = {0,0,0};
+../Src/main.c(219): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+  		if (yGValue > 
+CS_AccelerometerLimit)
+../Src/main.c(275): warning:  #161-D: unrecognized #pragma
+  #pragma mark - Work with sensor 
+../Src/main.c: 16 warnings, 0 errors
 linking...
-Program Size: Code=14346 RO-data=750 RW-data=20 ZI-data=1332  
+Program Size: Code=14968 RO-data=744 RW-data=28 ZI-data=1348  
 FromELF: creating hex file...
-"stm32f407-0\stm32f407-0.axf" - 0 Error(s), 7 Warning(s).
+"stm32f407-0\stm32f407-0.axf" - 0 Error(s), 16 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -69,7 +89,7 @@ Package Vendor: Keil
 <h2>Collection of Component Files used:</h2>
 
    * Component: ARM::CMSIS:CORE:5.0.1
-Build Time Elapsed:  00:00:05
+Build Time Elapsed:  00:00:04
 </pre>
 </body>
 </html>
