@@ -44,29 +44,41 @@ compiling main.c...
   float obtainAccelerationYAxis();
 ../Src/main.c(128): warning:  #1295-D: Deprecated declaration obtainAccelerationZAxis - give arg types
   float obtainAccelerationZAxis();
-../Src/main.c(131): warning:  #1295-D: Deprecated declaration obtainCurrentAngleOfRotation - give arg types
+../Src/main.c(135): warning:  #1295-D: Deprecated declaration obtainCurrentAngleOfRotation - give arg types
   struct AngleOfRotationXYZAxis obtainCurrentAngleOfRotation();
-../Src/main.c(132): warning:  #1295-D: Deprecated declaration createStartAngleOfRotation - give arg types
+../Src/main.c(136): warning:  #1295-D: Deprecated declaration createStartAngleOfRotation - give arg types
   struct AngleOfRotationXYZAxis createStartAngleOfRotation();
-../Src/main.c(133): warning:  #1295-D: Deprecated declaration obtainCurrentAngleOfRotationWithStartAngle - give arg types
+../Src/main.c(137): warning:  #1295-D: Deprecated declaration obtainCurrentAngleOfRotationWithStartAngle - give arg types
   struct AngleOfRotationXYZAxis obtainCurrentAngleOfRotationWithStartAngle();
-../Src/main.c(134): warning:  #1295-D: Deprecated declaration obtainCurrentGyroscopeValue - give arg types
+../Src/main.c(138): warning:  #1295-D: Deprecated declaration obtainCurrentGyroscopeValue - give arg types
   struct GyroscopeValueXYZ obtainCurrentGyroscopeValue();
-../Src/main.c(185): warning:  #1035-D: single-precision operand implicitly converted to double-precision
-  		if (xyzCurrentGValue.yGValue > 
-CS_AccelerometerLimit)
-../Src/main.c(178): warning:  #177-D: variable "xyzCurrentAnglesWithStartAngles"  was declared but never referenced
+../Src/main.c(140): warning:  #1295-D: Deprecated declaration sensorControl - give arg types
+  void sensorControl();
+../Src/main.c(141): warning:  #1295-D: Deprecated declaration sensitivitySetting - give arg types
+  void sensitivitySetting();
+../Src/main.c(199): warning:  #177-D: variable "xyzCurrentAnglesWithStartAngles"  was declared but never referenced
   	struct AngleOfRotationXYZAxis xyzCurrentAnglesWithStartAngles = {0,0,0};
-../Src/main.c(219): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+../Src/main.c(200): warning:  #177-D: variable "xyzCurrentGValue"  was declared but never referenced
+  	struct GyroscopeValueXYZ xyzCurrentGValue = {0,0,0};
+../Src/main.c(217): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+  		if (obtainCurrentGyroscopeValue().yGValue > 
+CS_AccelerometerLimit)
+../Src/main.c(213): warning:  #550-D: variable "data1"  was set but never used
+  	float data1 = 0;
+../Src/main.c(214): warning:  #177-D: variable "data2"  was declared but never referenced
+  	float data2 = 0;
+../Src/main.c(262): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+  	return 0xFFF * (0.5 + ittt); // 0xFFF - 12 bit DAC
+../Src/main.c(290): warning:  #1035-D: single-precision operand implicitly converted to double-precision
   		if (yGValue > 
 CS_AccelerometerLimit)
-../Src/main.c(275): warning:  #161-D: unrecognized #pragma
+../Src/main.c(346): warning:  #161-D: unrecognized #pragma
   #pragma mark - Work with sensor 
-../Src/main.c: 16 warnings, 0 errors
+../Src/main.c: 22 warnings, 0 errors
 linking...
-Program Size: Code=14968 RO-data=744 RW-data=28 ZI-data=1348  
+Program Size: Code=15504 RO-data=744 RW-data=28 ZI-data=1348  
 FromELF: creating hex file...
-"stm32f407-0\stm32f407-0.axf" - 0 Error(s), 16 Warning(s).
+"stm32f407-0\stm32f407-0.axf" - 0 Error(s), 22 Warning(s).
 
 <h2>Software Packages used:</h2>
 

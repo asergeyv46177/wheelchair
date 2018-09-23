@@ -56,16 +56,16 @@ Constants
 /*
 Controls
 */
-#define SCS_Gyroscope_isEnable	0x1
+#define SCS_Sensor_isEnable	0x1
 #define SCS_Joystick_isEnable	0x2
 #define SCS_Settings_isEnable	0x3
 
 /*
 Sensitivity
 */
-#define SCS_Sensitivity_Low	1
-#define SCS_Sensitivity_Normal	2
-#define SCS_Sensitivity_Hight	3
+#define SCS_Sensitivity_Low	0
+#define SCS_Sensitivity_Normal	20
+#define SCS_Sensitivity_Hight	40
 
 /*
 Sensitivity settings
@@ -127,17 +127,23 @@ float obtainAccelerationXAxis();
 float obtainAccelerationYAxis();
 float obtainAccelerationZAxis();
 
+void straightMotionDACWithCurrentAngel(float currentAngel);
+void sidewaysMotionDACWithCurrentAngel(float currentAngel);
+int convertAngelToDACValue(float currentAngel);
+
 float angleFromProjections(float secondaryCatheter, float primaryCatheter_1, float primaryCatheter_2);
 struct AngleOfRotationXYZAxis obtainCurrentAngleOfRotation();
 struct AngleOfRotationXYZAxis createStartAngleOfRotation();
 struct AngleOfRotationXYZAxis obtainCurrentAngleOfRotationWithStartAngle();
 struct GyroscopeValueXYZ obtainCurrentGyroscopeValue();
 
-void sensitivitySetting(float yGValue);
+void sensorControl();
+void sensitivitySetting();
+
 
 struct AngleOfRotationXYZAxis xyzStartAngles = {0,0,0};
 int sensitivity = SCS_Sensitivity_Normal;
-int controlFlag = SCS_Gyroscope_isEnable;
+int controlFlag = SCS_Sensor_isEnable;
 
 int main(void)
 {
@@ -170,6 +176,21 @@ int main(void)
   MX_TIM1_Init();
   /* USER CODE BEGIN 2 */
 	prepareI2C();
+	
+	ADC1->CR2|=(1);
+	ADC2->CR2|=(1);
+	
+	ADC1->CR1|=(1<<5);
+	ADC2->CR1|=(1<<5);
+	
+	ADC1->SMPR2=(7<<3);
+	ADC2->SMPR2=(7<<6);
+
+	ADC1->CR2|=(1<<20);
+	ADC2->CR2|=(1<<20);
+	
+	DAC->CR|=(1|1<<2|(7<<3)|5<<16|7<<19);
+	
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -180,23 +201,73 @@ int main(void)
 	xyzStartAngles = createStartAngleOfRotation();
   while (1)
   {
-//		xyzCurrentAnglesWithStartAngles = obtainCurrentAngleOfRotationWithStartAngle(); 
-		xyzCurrentGValue = obtainCurrentGyroscopeValue();
-		if (xyzCurrentGValue.yGValue > SCS_AccelerometerLimit)
-		{
-			sensitivitySetting(xyzCurrentGValue.yGValue);
-		}
+		sensorControl();
+//		xyzCurrentAnglesWithStartAngles = obtainCurrentAngleOfRotationWithStartAngle();
 //		valueGyro = Gyro();
 //		ledBlinkWithFrequency(1);
   }
 }
 
-void sensitivitySetting(float yGValue)
+void sensorControl()
+{
+	float data1 = 0;
+	float data2 = 0;
+	while(SCS_Sensor_isEnable == controlFlag)
+	{
+		if (obtainCurrentGyroscopeValue().yGValue > SCS_AccelerometerLimit)
+		{
+			sensitivitySetting();
+		}
+		struct AngleOfRotationXYZAxis xyzCurrentAnglesWithStartAngles = obtainCurrentAngleOfRotationWithStartAngle();
+		straightMotionDACWithCurrentAngel(xyzCurrentAnglesWithStartAngles.xAngle);
+		sidewaysMotionDACWithCurrentAngel(xyzCurrentAnglesWithStartAngles.zAngle);
+		
+		if(ADC1->SR & ADC_SR_EOC)
+		{
+			data1 =ADC1->DR;
+			ADC1->SR=0;
+		}
+//		data1 = HAL_ADC_GetValue(&hadc1);
+//		data1 = ADC1->CR2;
+//		for(int i =0;i<0xD0;i++);
+		
+		if(ADC2->SR & ADC_SR_EOC)
+		{
+			data1 =ADC2->DR;
+			ADC2->SR=0;
+		}
+//		data2 = HAL_ADC_GetValue(&hadc2);
+//		for(int i =0;i<0xD0;i++);
+	}
+}
+
+void straightMotionDACWithCurrentAngel(float currentAngel)
+{
+	int dacValue = convertAngelToDACValue(currentAngel);
+	DAC->DHR12R1 = dacValue;
+	DAC->SWTRIGR|=1;
+}
+
+void sidewaysMotionDACWithCurrentAngel(float currentAngel)
+{
+	int dacValue = convertAngelToDACValue(currentAngel);
+	DAC->DHR12R2= dacValue;
+	DAC->SWTRIGR|=2;
+}
+
+int convertAngelToDACValue(float currentAngel)
+{
+	float ittt = currentAngel / (180 - sensitivity);
+	
+	return 0xFFF * (0.5 + ittt); // 0xFFF - 12 bit DAC
+}
+
+void sensitivitySetting()
 {
 	ledBlinkWithCountBlink(4);
 	waitForExpectedBehavior();
 	controlFlag = SCS_Settings_isEnable;
-	while(controlFlag == SCS_Settings_isEnable)
+	while(SCS_Settings_isEnable == controlFlag)
 	{
 		float xAngle = obtainCurrentAngleOfRotationWithStartAngle().xAngle;
 		if (xAngle > SCS_GyroscopeValueForHight_Y)
@@ -215,10 +286,10 @@ void sensitivitySetting(float yGValue)
 			ledBlinkWithFrequency(1);
 		}
 		
-		yGValue = obtainGyroscopeValueY();
+		float yGValue = obtainGyroscopeValueY();
 		if (yGValue > SCS_AccelerometerLimit)
 		{
-			controlFlag = SCS_Gyroscope_isEnable;
+			controlFlag = SCS_Sensor_isEnable;
 		}
 		// Uchest', chto zdes' mojet srabotat' joystick
 	}
