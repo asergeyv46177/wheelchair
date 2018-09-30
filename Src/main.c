@@ -191,6 +191,12 @@ void sidewaysMotionDACWithCurrentAngel(float currentAngel);
 	@return значение для ЦАП, нормированное на полную шкалу ЦАП 3,3В (0xFFF)
 */
 int convertAngelToDACValue(float currentAngel);
+/*
+	Получение текущего значения напряжения от АЦП в вольтах
+	@param handleTypeADC структура, которая содержит информацию о конфигурации для указанного АЦП
+	@return напряжение в вольтах
+*/
+float currentVoltageWithHandleType(ADC_HandleTypeDef handleTypeADC);
 
 
 /*
@@ -225,6 +231,16 @@ struct AngleOfRotationXYZAxis obtainCurrentAngleOfRotationWithStartAngle();
 	@return GyroscopeValueXYZ текущие проекции ускорения(a)
 */
 struct GyroscopeValueXYZ obtainCurrentGyroscopeValue();
+/*
+	Получить текущие напряжение в вольтах с джойстика для движения вперед
+	@return текущие напряжение в вольтах
+*/
+float straightMotionVoltageADC();
+/*
+	Получить текущие напряжение в вольтах с джойстика для движения в сторону
+	@return текущие напряжение в вольтах
+*/
+float sidewaysMotionVoltageADC();
 
 
 /*
@@ -253,18 +269,6 @@ int main(void)
   MX_I2C1_Init();
   MX_TIM1_Init();
 	
-//	ADC1->CR2|=(1);
-//	ADC2->CR2|=(1);
-//	
-//	ADC1->CR1|=(1<<5);
-//	ADC2->CR1|=(1<<5);
-//	
-//	ADC1->SMPR2=(7<<3);
-//	ADC2->SMPR2=(7<<6);
-
-//	ADC1->CR2|=(1<<20);
-//	ADC2->CR2|=(1<<20);
-	
 	prepareI2C();
 	
 	struct AngleOfRotationXYZAxis xyzCurrentAnglesWithStartAngles = {0,0,0};
@@ -280,7 +284,7 @@ int main(void)
 void sensorControl()
 {
 	while(SCS_Sensor_isEnable == controlFlag)
-	{
+	{		
 		if (obtainCurrentGyroscopeValue().yGValue > SCS_AccelerometerLimit)
 		{
 			sensitivitySetting();
@@ -289,6 +293,25 @@ void sensorControl()
 		straightMotionDACWithCurrentAngel(xyzCurrentAnglesWithStartAngles.xAngle);
 		sidewaysMotionDACWithCurrentAngel(xyzCurrentAnglesWithStartAngles.zAngle);
 	}
+}
+
+float straightMotionVoltageADC()
+{
+	return currentVoltageWithHandleType(hadc1);
+}
+
+float sidewaysMotionVoltageADC()
+{
+	return currentVoltageWithHandleType(hadc2);
+}
+
+float currentVoltageWithHandleType(ADC_HandleTypeDef handleTypeADC)
+{
+	HAL_ADC_Start(&handleTypeADC);
+	HAL_ADC_PollForConversion(&handleTypeADC, 100);
+	float currentVoltage = ((float)HAL_ADC_GetValue(&handleTypeADC)) * 3.3 / 4096;
+	HAL_ADC_Stop(&handleTypeADC);
+	return currentVoltage;
 }
 
 void straightMotionDACWithCurrentAngel(float currentAngel)
