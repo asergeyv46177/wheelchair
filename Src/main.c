@@ -63,9 +63,9 @@ Controls
 /*
 Sensitivity
 */
-#define SCS_Sensitivity_Low	0
-#define SCS_Sensitivity_Normal	20
-#define SCS_Sensitivity_Hight	40
+#define SCS_MaximumAngleSensitivity_Low	40
+#define SCS_MaximumAngleSensitivity_Normal	30
+#define SCS_MaximumAngleSensitivity_Hight	20
 
 /*
 Sensitivity settings
@@ -112,106 +112,173 @@ static void MX_I2C1_Init(void);
 static void MX_TIM1_Init(void);
 void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
 
+
+/*
+	Осуществляет мигание диодом заданное количество раз
+	@param countBlink заданное количество раз
+*/
 void ledBlinkWithCountBlink(int countBlink);
+/*
+	Осуществляет задержку для корректного входа в меню
+*/
 void waitForExpectedBehavior();
+/*
+	Осуществляет мигание диодом c заданной частотой
+	@param frequency заданная частота
+*/
 void ledBlinkWithFrequency(float frequency);
 
-void prepareI2C();
-int readI2C(int addr);
 
+/*
+	Подготовка I2C у MPU-6050
+*/
+void prepareI2C();
+/*
+	Получение данных с MPU-6050
+	@param address адрес, по которому следует прочитать данные 
+	@return прочитанное значение
+*/
+int readI2C(int address);
+
+
+/*
+	Получить проекцию ускорение(а) на ось Х
+	@return проекция ускорение(а)
+*/
 float obtainGyroscopeValueX();
+/*
+	Получить проекцию ускорение(а) на ось Y
+	@return проекция ускорение(а)
+*/
 float obtainGyroscopeValueY();
+/*
+	Получить проекцию ускорение(а) на ось Z
+	@return проекция ускорение(а)
+*/
 float obtainGyroscopeValueZ();
 
+
+/*
+	Получить проекцию ускорение(g) на ось Х
+	@return проекция ускорение(g)
+*/
 float obtainAccelerationXAxis();
+/*
+	Получить проекцию ускорение(g) на ось Y
+	@return проекция ускорение(g)
+*/
 float obtainAccelerationYAxis();
+/*
+	Получить проекцию ускорение(g) на ось Z
+	@return проекция ускорение(g)
+*/
 float obtainAccelerationZAxis();
 
+
+/*
+	Передача данных в ЦАП для движение вперед
+	@param currentAngel текущий угол в градусах
+*/
 void straightMotionDACWithCurrentAngel(float currentAngel);
+/*
+	Передача данных в ЦАП для движение в сторону
+	@param currentAngel текущий угол в градусах
+*/
 void sidewaysMotionDACWithCurrentAngel(float currentAngel);
+/*
+	Конвертация градусов текущего угла в даные для ЦАП
+	@param currentAngel текущий угол в градусах
+	@return значение для ЦАП, нормированное на полную шкалу ЦАП 3,3В (0xFFF)
+*/
 int convertAngelToDACValue(float currentAngel);
 
+
+/*
+	Получение угла наклона датчика
+	@bref вторичный катет - проекция на ось, угол между которой и вектором ускрения(g) является искомым; 
+				первичные катеты - проекции на остальные две оси.
+	@param secondaryCatheter вторичный катет, который учавствует в поиске угла наклона межд
+	@param primaryCatheter_1 первичный катет, который учавствует в поиске гипотенузы, 
+													 которая является вторичним катетом в последующем поиске угла наклона
+	@param primaryCatheter_2 первичный катет, который учавствует в поиске гипотенузы, 
+													 которая является вторичним катетом в последующем поиске угла наклона
+	@return угол наклона
+*/
 float angleFromProjections(float secondaryCatheter, float primaryCatheter_1, float primaryCatheter_2);
+/*
+	Получить текущие углы наклона датика
+	@return AngleOfRotationXYZAxis текущие углы наклона
+*/
 struct AngleOfRotationXYZAxis obtainCurrentAngleOfRotation();
+/*
+	Получить углы начального смещения датика
+	@return AngleOfRotationXYZAxis начальные углы наклона
+*/
 struct AngleOfRotationXYZAxis createStartAngleOfRotation();
+/*
+	Получить текущие углы наклона датика с начальным смещением
+	@return AngleOfRotationXYZAxis текущие углы наклона с начальным смещением
+*/
 struct AngleOfRotationXYZAxis obtainCurrentAngleOfRotationWithStartAngle();
+/*
+	Получить текущие проекции ускорения(a) на оси
+	@return GyroscopeValueXYZ текущие проекции ускорения(a)
+*/
 struct GyroscopeValueXYZ obtainCurrentGyroscopeValue();
 
+
+/*
+	Управление с помощью датчика
+*/
 void sensorControl();
+/*
+	Настройки чувствительности датчика
+*/
 void sensitivitySetting();
 
 
 struct AngleOfRotationXYZAxis xyzStartAngles = {0,0,0};
-int sensitivity = SCS_Sensitivity_Normal;
+int maximumAngleSensitivity = SCS_MaximumAngleSensitivity_Normal;
 int controlFlag = SCS_Sensor_isEnable;
 
 int main(void)
 {
-  /* USER CODE BEGIN 1 */
-
-  /* USER CODE END 1 */
-
-  /* MCU Configuration----------------------------------------------------------*/
-
-  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
   HAL_Init();
-
-  /* USER CODE BEGIN Init */
-
-  /* USER CODE END Init */
-
-  /* Configure the system clock */
   SystemClock_Config();
 
-  /* USER CODE BEGIN SysInit */
-
-  /* USER CODE END SysInit */
-
-  /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_ADC1_Init();
   MX_ADC2_Init();
   MX_DAC_Init();
   MX_I2C1_Init();
   MX_TIM1_Init();
-  /* USER CODE BEGIN 2 */
+	
+//	ADC1->CR2|=(1);
+//	ADC2->CR2|=(1);
+//	
+//	ADC1->CR1|=(1<<5);
+//	ADC2->CR1|=(1<<5);
+//	
+//	ADC1->SMPR2=(7<<3);
+//	ADC2->SMPR2=(7<<6);
+
+//	ADC1->CR2|=(1<<20);
+//	ADC2->CR2|=(1<<20);
+	
 	prepareI2C();
 	
-	ADC1->CR2|=(1);
-	ADC2->CR2|=(1);
-	
-	ADC1->CR1|=(1<<5);
-	ADC2->CR1|=(1<<5);
-	
-	ADC1->SMPR2=(7<<3);
-	ADC2->SMPR2=(7<<6);
-
-	ADC1->CR2|=(1<<20);
-	ADC2->CR2|=(1<<20);
-	
-	DAC->CR|=(1|1<<2|(7<<3)|5<<16|7<<19);
-	
-  /* USER CODE END 2 */
-
-  /* Infinite loop */
-  /* USER CODE BEGIN WHILE */
-//	volatile int16_t valueGyro = 0;
 	struct AngleOfRotationXYZAxis xyzCurrentAnglesWithStartAngles = {0,0,0};
 	struct GyroscopeValueXYZ xyzCurrentGValue = {0,0,0};
 	xyzStartAngles = createStartAngleOfRotation();
+	
   while (1)
-  {
+  {		
 		sensorControl();
-//		xyzCurrentAnglesWithStartAngles = obtainCurrentAngleOfRotationWithStartAngle();
-//		valueGyro = Gyro();
-//		ledBlinkWithFrequency(1);
   }
 }
 
 void sensorControl()
 {
-	float data1 = 0;
-	float data2 = 0;
 	while(SCS_Sensor_isEnable == controlFlag)
 	{
 		if (obtainCurrentGyroscopeValue().yGValue > SCS_AccelerometerLimit)
@@ -221,23 +288,6 @@ void sensorControl()
 		struct AngleOfRotationXYZAxis xyzCurrentAnglesWithStartAngles = obtainCurrentAngleOfRotationWithStartAngle();
 		straightMotionDACWithCurrentAngel(xyzCurrentAnglesWithStartAngles.xAngle);
 		sidewaysMotionDACWithCurrentAngel(xyzCurrentAnglesWithStartAngles.zAngle);
-		
-		if(ADC1->SR & ADC_SR_EOC)
-		{
-			data1 =ADC1->DR;
-			ADC1->SR=0;
-		}
-//		data1 = HAL_ADC_GetValue(&hadc1);
-//		data1 = ADC1->CR2;
-//		for(int i =0;i<0xD0;i++);
-		
-		if(ADC2->SR & ADC_SR_EOC)
-		{
-			data1 =ADC2->DR;
-			ADC2->SR=0;
-		}
-//		data2 = HAL_ADC_GetValue(&hadc2);
-//		for(int i =0;i<0xD0;i++);
 	}
 }
 
@@ -256,10 +306,19 @@ void sidewaysMotionDACWithCurrentAngel(float currentAngel)
 }
 
 int convertAngelToDACValue(float currentAngel)
-{
-	float ittt = currentAngel / (180 - sensitivity);
-	
-	return 0xFFF * (0.5 + ittt); // 0xFFF - 12 bit DAC
+{	
+	if (currentAngel > maximumAngleSensitivity)
+	{
+		return 0xFFF;
+	}
+	else if (currentAngel < - maximumAngleSensitivity)
+	{
+		return 0x0;
+	}
+	else
+	{
+		return 0xFFF / 2 * (1 + currentAngel / maximumAngleSensitivity); // 0xFFF - 12 bit DAC
+	}
 }
 
 void sensitivitySetting()
@@ -272,18 +331,18 @@ void sensitivitySetting()
 		float xAngle = obtainCurrentAngleOfRotationWithStartAngle().xAngle;
 		if (xAngle > SCS_GyroscopeValueForHight_Y)
 		{
-			sensitivity = SCS_Sensitivity_Hight;
-			ledBlinkWithFrequency(0.1);
+			maximumAngleSensitivity = SCS_MaximumAngleSensitivity_Hight;
+			ledBlinkWithFrequency(0.01);
 		}
 		else if (xAngle > SCS_GyroscopeValueForLow_Y)
 		{
-			sensitivity = SCS_Sensitivity_Normal;
-			ledBlinkWithFrequency(0.5);
+			maximumAngleSensitivity = SCS_MaximumAngleSensitivity_Normal;
+			ledBlinkWithFrequency(0.05);
 		}
 		else 
 		{
-			sensitivity = SCS_Sensitivity_Low;
-			ledBlinkWithFrequency(1);
+			maximumAngleSensitivity = SCS_MaximumAngleSensitivity_Low;
+			ledBlinkWithFrequency(0.1);
 		}
 		
 		float yGValue = obtainGyroscopeValueY();
@@ -299,7 +358,6 @@ void sensitivitySetting()
 struct GyroscopeValueXYZ obtainCurrentGyroscopeValue()
 {
 	struct GyroscopeValueXYZ gValueXYZ = {0,0,0};
-	
 	gValueXYZ.xGValue = obtainGyroscopeValueX();
 	gValueXYZ.yGValue = obtainGyroscopeValueY();
 	gValueXYZ.zGValue = obtainGyroscopeValueZ();
@@ -387,7 +445,7 @@ float obtainAccelerationZAxis()
 	return (float)az / 32768;
 }
 
-int readI2C(int addr)
+int readI2C(int address)
 {
 	I2C1->CR1 = 0xC;
 	I2C1->OAR1 = (0x4000);
@@ -402,7 +460,7 @@ int readI2C(int addr)
 	while (!(I2C1->SR1 & I2C_SR1_ADDR)){}
 	(void) I2C1->SR1;
 	(void) I2C1->SR2;
-	I2C1->DR = addr;		
+	I2C1->DR = address;		
 	while (!(I2C1->SR1 & I2C_SR1_BTF)){}
 		
 //---------------------------------//
@@ -685,7 +743,7 @@ static void MX_DAC_Init(void)
   {
     _Error_Handler(__FILE__, __LINE__);
   }
-
+	DAC->CR|=(1|1<<2|(7<<3)|5<<16|7<<19);
 }
 
 /* I2C1 init function */
@@ -783,7 +841,6 @@ static void MX_TIM1_Init(void)
 */
 static void MX_GPIO_Init(void)
 {
-
   GPIO_InitTypeDef GPIO_InitStruct;
 
   /* GPIO Ports Clock Enable */
