@@ -192,7 +192,7 @@ void sidewaysMotionDACWithCurrentAngel(float currentAngel);
 */
 int convertAngelToDACValue(float currentAngel);
 /*
-	Получение текущего значения напряжения от АЦП в вольтах
+	Получить текущие значение напряжения от АЦП в вольтах
 	@param handleTypeADC структура, которая содержит информацию о конфигурации для указанного АЦП
 	@return напряжение в вольтах
 */
@@ -232,12 +232,12 @@ struct AngleOfRotationXYZAxis obtainCurrentAngleOfRotationWithStartAngle();
 */
 struct GyroscopeValueXYZ obtainCurrentGyroscopeValue();
 /*
-	Получить текущие напряжение в вольтах с джойстика для движения вперед
+	Получить текущие значение напряжения в вольтах с джойстика для движения вперед
 	@return текущие напряжение в вольтах
 */
 float straightMotionVoltageADC();
 /*
-	Получить текущие напряжение в вольтах с джойстика для движения в сторону
+	Получить текущие значение напряжения в вольтах с джойстика для движения в сторону
 	@return текущие напряжение в вольтах
 */
 float sidewaysMotionVoltageADC();
