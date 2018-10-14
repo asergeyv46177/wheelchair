@@ -27,7 +27,58 @@ Project File Date:  09/11/2018
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 5 (build 528)', folder: 'C:\Keil_v5\ARM\ARMCC\Bin'
 Build target 'stm32f407-0'
-"stm32f407-0\stm32f407-0.axf" - 0 Error(s), 0 Warning(s).
+compiling main.c...
+../Src/main.c(125): warning:  #1295-D: Deprecated declaration waitForExpectedBehavior - give arg types
+  void waitForExpectedBehavior();
+../Src/main.c(136): warning:  #1295-D: Deprecated declaration prepareI2C - give arg types
+  void prepareI2C();
+../Src/main.c(149): warning:  #1295-D: Deprecated declaration obtainGyroscopeValueX - give arg types
+  float obtainGyroscopeValueX();
+../Src/main.c(154): warning:  #1295-D: Deprecated declaration obtainGyroscopeValueY - give arg types
+  float obtainGyroscopeValueY();
+../Src/main.c(159): warning:  #1295-D: Deprecated declaration obtainGyroscopeValueZ - give arg types
+  float obtainGyroscopeValueZ();
+../Src/main.c(166): warning:  #1295-D: Deprecated declaration obtainAccelerationXAxis - give arg types
+  float obtainAccelerationXAxis();
+../Src/main.c(171): warning:  #1295-D: Deprecated declaration obtainAccelerationYAxis - give arg types
+  float obtainAccelerationYAxis();
+../Src/main.c(176): warning:  #1295-D: Deprecated declaration obtainAccelerationZAxis - give arg types
+  float obtainAccelerationZAxis();
+../Src/main.c(219): warning:  #1295-D: Deprecated declaration obtainCurrentAngleOfRotation - give arg types
+  struct AngleOfRotationXYZAxis obtainCurrentAngleOfRotation();
+../Src/main.c(224): warning:  #1295-D: Deprecated declaration createStartAngleOfRotation - give arg types
+  struct AngleOfRotationXYZAxis createStartAngleOfRotation();
+../Src/main.c(229): warning:  #1295-D: Deprecated declaration obtainCurrentAngleOfRotationWithStartAngle - give arg types
+  struct AngleOfRotationXYZAxis obtainCurrentAngleOfRotationWithStartAngle();
+../Src/main.c(234): warning:  #1295-D: Deprecated declaration obtainCurrentGyroscopeValue - give arg types
+  struct GyroscopeValueXYZ obtainCurrentGyroscopeValue();
+../Src/main.c(239): warning:  #1295-D: Deprecated declaration straightMotionVoltageADC - give arg types
+  float straightMotionVoltageADC();
+../Src/main.c(244): warning:  #1295-D: Deprecated declaration sidewaysMotionVoltageADC - give arg types
+  float sidewaysMotionVoltageADC();
+../Src/main.c(250): warning:  #1295-D: Deprecated declaration sensorControl - give arg types
+  void sensorControl();
+../Src/main.c(254): warning:  #1295-D: Deprecated declaration sensitivitySetting - give arg types
+  void sensitivitySetting();
+../Src/main.c(279): warning:  #177-D: variable "xyzCurrentAnglesWithStartAngles"  was declared but never referenced
+  	struct AngleOfRotationXYZAxis xyzCurrentAnglesWithStartAngles = {0,0,0};
+../Src/main.c(280): warning:  #177-D: variable "xyzCurrentGValue"  was declared but never referenced
+  	struct GyroscopeValueXYZ xyzCurrentGValue = {0,0,0};
+../Src/main.c(295): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+  		if (obtainCurrentGyroscopeValue().yGValue > 
+CS_AccelerometerLimit)
+../Src/main.c(319): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+  	float currentVoltage = ((float)HAL_ADC_GetValue(&handleTypeADC)) * 3.3 / 4096;
+../Src/main.c(379): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+  		if (yGValue > 
+CS_AccelerometerLimit)
+../Src/main.c(434): warning:  #161-D: unrecognized #pragma
+  #pragma mark - Work with sensor 
+../Src/main.c: 22 warnings, 0 errors
+linking...
+Program Size: Code=13842 RO-data=750 RW-data=20 ZI-data=1348  
+FromELF: creating hex file...
+"stm32f407-0\stm32f407-0.axf" - 0 Error(s), 22 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -50,7 +101,7 @@ Package Vendor: Keil
 <h2>Collection of Component Files used:</h2>
 
    * Component: ARM::CMSIS:CORE:5.0.1
-Build Time Elapsed:  00:00:00
+Build Time Elapsed:  00:00:05
 </pre>
 </body>
 </html>
