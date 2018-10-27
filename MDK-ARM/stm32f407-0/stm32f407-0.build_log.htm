@@ -30,8 +30,6 @@ Build target 'stm32f407-0'
 compiling main.c...
 ../Src/main.c(125): warning:  #1295-D: Deprecated declaration waitForExpectedBehavior - give arg types
   void waitForExpectedBehavior();
-../Src/main.c(136): warning:  #1295-D: Deprecated declaration prepareI2C - give arg types
-  void prepareI2C();
 ../Src/main.c(149): warning:  #1295-D: Deprecated declaration obtainGyroscopeValueX - give arg types
   float obtainGyroscopeValueX();
 ../Src/main.c(154): warning:  #1295-D: Deprecated declaration obtainGyroscopeValueY - give arg types
@@ -44,41 +42,41 @@ compiling main.c...
   float obtainAccelerationYAxis();
 ../Src/main.c(176): warning:  #1295-D: Deprecated declaration obtainAccelerationZAxis - give arg types
   float obtainAccelerationZAxis();
-../Src/main.c(219): warning:  #1295-D: Deprecated declaration obtainCurrentAngleOfRotation - give arg types
+../Src/main.c(230): warning:  #1295-D: Deprecated declaration obtainCurrentAngleOfRotation - give arg types
   struct AngleOfRotationXYZAxis obtainCurrentAngleOfRotation();
-../Src/main.c(224): warning:  #1295-D: Deprecated declaration createStartAngleOfRotation - give arg types
+../Src/main.c(235): warning:  #1295-D: Deprecated declaration createStartAngleOfRotation - give arg types
   struct AngleOfRotationXYZAxis createStartAngleOfRotation();
-../Src/main.c(229): warning:  #1295-D: Deprecated declaration obtainCurrentAngleOfRotationWithStartAngle - give arg types
+../Src/main.c(240): warning:  #1295-D: Deprecated declaration obtainCurrentAngleOfRotationWithStartAngle - give arg types
   struct AngleOfRotationXYZAxis obtainCurrentAngleOfRotationWithStartAngle();
-../Src/main.c(234): warning:  #1295-D: Deprecated declaration obtainCurrentGyroscopeValue - give arg types
+../Src/main.c(245): warning:  #1295-D: Deprecated declaration obtainCurrentGyroscopeValue - give arg types
   struct GyroscopeValueXYZ obtainCurrentGyroscopeValue();
-../Src/main.c(239): warning:  #1295-D: Deprecated declaration straightMotionVoltageADC - give arg types
+../Src/main.c(250): warning:  #1295-D: Deprecated declaration straightMotionVoltageADC - give arg types
   float straightMotionVoltageADC();
-../Src/main.c(244): warning:  #1295-D: Deprecated declaration sidewaysMotionVoltageADC - give arg types
+../Src/main.c(255): warning:  #1295-D: Deprecated declaration sidewaysMotionVoltageADC - give arg types
   float sidewaysMotionVoltageADC();
-../Src/main.c(250): warning:  #1295-D: Deprecated declaration sensorControl - give arg types
+../Src/main.c(261): warning:  #1295-D: Deprecated declaration sensorControl - give arg types
   void sensorControl();
-../Src/main.c(254): warning:  #1295-D: Deprecated declaration sensitivitySetting - give arg types
+../Src/main.c(265): warning:  #1295-D: Deprecated declaration sensitivitySetting - give arg types
   void sensitivitySetting();
-../Src/main.c(279): warning:  #177-D: variable "xyzCurrentAnglesWithStartAngles"  was declared but never referenced
+../Src/main.c(286): warning:  #177-D: variable "xyzCurrentAnglesWithStartAngles"  was declared but never referenced
   	struct AngleOfRotationXYZAxis xyzCurrentAnglesWithStartAngles = {0,0,0};
-../Src/main.c(280): warning:  #177-D: variable "xyzCurrentGValue"  was declared but never referenced
+../Src/main.c(287): warning:  #177-D: variable "xyzCurrentGValue"  was declared but never referenced
   	struct GyroscopeValueXYZ xyzCurrentGValue = {0,0,0};
-../Src/main.c(295): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+../Src/main.c(300): warning:  #1035-D: single-precision operand implicitly converted to double-precision
   		if (obtainCurrentGyroscopeValue().yGValue > 
 CS_AccelerometerLimit)
-../Src/main.c(319): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+../Src/main.c(324): warning:  #1035-D: single-precision operand implicitly converted to double-precision
   	float currentVoltage = ((float)HAL_ADC_GetValue(&handleTypeADC)) * 3.3 / 4096;
-../Src/main.c(379): warning:  #1035-D: single-precision operand implicitly converted to double-precision
-  		if (yGValue > 
+../Src/main.c(381): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+  		if (obtainCurrentGyroscopeValue().yGValue > 
 CS_AccelerometerLimit)
-../Src/main.c(434): warning:  #161-D: unrecognized #pragma
+../Src/main.c(459): warning:  #161-D: unrecognized #pragma
   #pragma mark - Work with sensor 
 ../Src/main.c: 22 warnings, 0 errors
 linking...
-Program Size: Code=13842 RO-data=750 RW-data=20 ZI-data=1348  
+Program Size: Code=14676 RO-data=748 RW-data=28 ZI-data=1348  
 FromELF: creating hex file...
-"stm32f407-0\stm32f407-0.axf" - 0 Error(s), 22 Warning(s).
+"stm32f407-0\stm32f407-0.axf" - 0 Error(s), 21 Warning(s).
 
 <h2>Software Packages used:</h2>
 

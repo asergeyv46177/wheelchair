@@ -198,6 +198,17 @@ int convertAngelToDACValue(float currentAngel);
 	@return напряжение в вольтах
 */
 float currentVoltageWithHandleType(ADC_HandleTypeDef handleTypeADC);
+/*
+	Конвертация градусов текущего угла в период сигнала для динамика
+	@param currentAngel текущий угол в градусах
+	@return период сигнала
+*/
+float convertCurrentXAngelToSignalPeriod(float currentXAngel);
+/*
+	Вывод звкука
+	@param signalPeriod период сигнала
+*/
+void speakerWithSignalPeriod(float signalPeriod);
 
 
 /*
@@ -271,20 +282,14 @@ int main(void)
 	MX_TIM1_Init();
 
 	prepareI2C();
-
-//	TIM1->ARR = 0xFFFF;
-//	TIM1->CCR1 = 0x7FFF;
-
 	
 	struct AngleOfRotationXYZAxis xyzCurrentAnglesWithStartAngles = {0,0,0};
 	struct GyroscopeValueXYZ xyzCurrentGValue = {0,0,0};
 	xyzStartAngles = createStartAngleOfRotation();
+	
 	while (1)
   {
-		int frequency = 0x7FFF + (0xFFFF / 180) * obtainCurrentAngleOfRotationWithStartAngle().xAngle;
-		TIM1->ARR = frequency;
-		TIM1->CCR1 = frequency / 2;
-//		sensorControl();
+		sensorControl();
   }
 }
 
@@ -353,36 +358,56 @@ int convertAngelToDACValue(float currentAngel)
 
 void sensitivitySetting()
 {
-	ledBlinkWithCountBlink(4);
+//	ledBlinkWithCountBlink(4);
 	waitForExpectedBehavior();
 	controlFlag = SCS_Settings_isEnable;
 	while(SCS_Settings_isEnable == controlFlag)
 	{
 		float xAngle = obtainCurrentAngleOfRotationWithStartAngle().xAngle;
+		speakerWithSignalPeriod(convertCurrentXAngelToSignalPeriod(xAngle));
 		if (xAngle > SCS_GyroscopeValueForHight_Y)
 		{
 			maximumAngleSensitivity = SCS_MaximumAngleSensitivity_Hight;
-			ledBlinkWithFrequency(0.01);
 		}
 		else if (xAngle > SCS_GyroscopeValueForLow_Y)
 		{
 			maximumAngleSensitivity = SCS_MaximumAngleSensitivity_Normal;
-			ledBlinkWithFrequency(0.05);
 		}
 		else 
 		{
 			maximumAngleSensitivity = SCS_MaximumAngleSensitivity_Low;
-			ledBlinkWithFrequency(0.1);
 		}
 		
-		float yGValue = obtainGyroscopeValueY();
-		if (yGValue > SCS_AccelerometerLimit)
+		if (obtainCurrentGyroscopeValue().yGValue > SCS_AccelerometerLimit)
 		{
 			controlFlag = SCS_Sensor_isEnable;
+			waitForExpectedBehavior();
 		}
 		// Uchest', chto zdes' mojet srabotat' joystick
 	}
-	ledBlinkWithCountBlink(2);
+//	ledBlinkWithCountBlink(2);
+}
+
+float convertCurrentXAngelToSignalPeriod(float currentXAngel)
+{
+		int fullScale = 0xFFFF;
+		float signalPeriod = fullScale / 4 * (3 - currentXAngel / SCS_MaximumAngleSensitivity_Low);
+
+		if (signalPeriod >= fullScale)
+		{
+			return fullScale;
+		}
+		if (signalPeriod <= fullScale / 2)
+		{
+			return fullScale / 2;
+		}
+		return signalPeriod;
+}
+
+void speakerWithSignalPeriod(float signalPeriod)
+{
+		TIM1->ARR = signalPeriod;
+		TIM1->CCR1 = signalPeriod / 2;
 }
 
 struct GyroscopeValueXYZ obtainCurrentGyroscopeValue()
@@ -805,7 +830,7 @@ static void MX_TIM1_Init(void)
 
 	htim1.Instance = TIM1;
 	htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
-	htim1.Init.Prescaler = 1;
+	htim1.Init.Prescaler = 2;
 	htim1.Init.Period = 0xFFFF;
 	htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
 	HAL_TIM_PWM_Init(&htim1);
