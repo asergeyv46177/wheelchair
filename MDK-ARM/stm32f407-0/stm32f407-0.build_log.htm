@@ -22,61 +22,24 @@ Dialog DLL:      TCM.DLL V1.32.0.0
  
 <h2>Project:</h2>
 C:\Users\Sergey\Documents\wheelchair\MDK-ARM\stm32f407-0.uvprojx
-Project File Date:  09/11/2018
+Project File Date:  10/28/2018
 
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 5 (build 528)', folder: 'C:\Keil_v5\ARM\ARMCC\Bin'
 Build target 'stm32f407-0'
-compiling main.c...
-../Src/main.c(125): warning:  #1295-D: Deprecated declaration waitForExpectedBehavior - give arg types
-  void waitForExpectedBehavior();
-../Src/main.c(149): warning:  #1295-D: Deprecated declaration obtainGyroscopeValueX - give arg types
-  float obtainGyroscopeValueX();
-../Src/main.c(154): warning:  #1295-D: Deprecated declaration obtainGyroscopeValueY - give arg types
-  float obtainGyroscopeValueY();
-../Src/main.c(159): warning:  #1295-D: Deprecated declaration obtainGyroscopeValueZ - give arg types
-  float obtainGyroscopeValueZ();
-../Src/main.c(166): warning:  #1295-D: Deprecated declaration obtainAccelerationXAxis - give arg types
-  float obtainAccelerationXAxis();
-../Src/main.c(171): warning:  #1295-D: Deprecated declaration obtainAccelerationYAxis - give arg types
-  float obtainAccelerationYAxis();
-../Src/main.c(176): warning:  #1295-D: Deprecated declaration obtainAccelerationZAxis - give arg types
-  float obtainAccelerationZAxis();
-../Src/main.c(230): warning:  #1295-D: Deprecated declaration obtainCurrentAngleOfRotation - give arg types
-  struct AngleOfRotationXYZAxis obtainCurrentAngleOfRotation();
-../Src/main.c(235): warning:  #1295-D: Deprecated declaration createStartAngleOfRotation - give arg types
-  struct AngleOfRotationXYZAxis createStartAngleOfRotation();
-../Src/main.c(240): warning:  #1295-D: Deprecated declaration obtainCurrentAngleOfRotationWithStartAngle - give arg types
-  struct AngleOfRotationXYZAxis obtainCurrentAngleOfRotationWithStartAngle();
-../Src/main.c(245): warning:  #1295-D: Deprecated declaration obtainCurrentGyroscopeValue - give arg types
-  struct GyroscopeValueXYZ obtainCurrentGyroscopeValue();
-../Src/main.c(250): warning:  #1295-D: Deprecated declaration straightMotionVoltageADC - give arg types
-  float straightMotionVoltageADC();
-../Src/main.c(255): warning:  #1295-D: Deprecated declaration sidewaysMotionVoltageADC - give arg types
-  float sidewaysMotionVoltageADC();
-../Src/main.c(261): warning:  #1295-D: Deprecated declaration sensorControl - give arg types
-  void sensorControl();
-../Src/main.c(265): warning:  #1295-D: Deprecated declaration sensitivitySetting - give arg types
-  void sensitivitySetting();
-../Src/main.c(286): warning:  #177-D: variable "xyzCurrentAnglesWithStartAngles"  was declared but never referenced
-  	struct AngleOfRotationXYZAxis xyzCurrentAnglesWithStartAngles = {0,0,0};
-../Src/main.c(287): warning:  #177-D: variable "xyzCurrentGValue"  was declared but never referenced
-  	struct GyroscopeValueXYZ xyzCurrentGValue = {0,0,0};
-../Src/main.c(300): warning:  #1035-D: single-precision operand implicitly converted to double-precision
-  		if (obtainCurrentGyroscopeValue().yGValue > 
-CS_AccelerometerLimit)
-../Src/main.c(324): warning:  #1035-D: single-precision operand implicitly converted to double-precision
-  	float currentVoltage = ((float)HAL_ADC_GetValue(&handleTypeADC)) * 3.3 / 4096;
-../Src/main.c(381): warning:  #1035-D: single-precision operand implicitly converted to double-precision
-  		if (obtainCurrentGyroscopeValue().yGValue > 
-CS_AccelerometerLimit)
-../Src/main.c(459): warning:  #161-D: unrecognized #pragma
-  #pragma mark - Work with sensor 
-../Src/main.c: 22 warnings, 0 errors
+compiling stm32f4xx_hal_dac_ex.c...
+compiling stm32f4xx_hal_i2c_ex.c...
+compiling stm32f4xx_hal_tim_ex.c...
+compiling stm32f4xx_hal_flash_ramfunc.c...
+compiling stm32f4xx_hal_flash_ex.c...
+compiling stm32f4xx_hal_rcc_ex.c...
+compiling stm32f4xx_hal_pwr_ex.c...
+compiling system_stm32f4xx.c...
+compiling stm32f4xx_hal_dma_ex.c...
 linking...
-Program Size: Code=14676 RO-data=748 RW-data=28 ZI-data=1348  
+Program Size: Code=15330 RO-data=750 RW-data=28 ZI-data=1348  
 FromELF: creating hex file...
-"stm32f407-0\stm32f407-0.axf" - 0 Error(s), 21 Warning(s).
+"stm32f407-0\stm32f407-0.axf" - 0 Error(s), 0 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -99,7 +62,7 @@ Package Vendor: Keil
 <h2>Collection of Component Files used:</h2>
 
    * Component: ARM::CMSIS:CORE:5.0.1
-Build Time Elapsed:  00:00:05
+Build Time Elapsed:  00:00:24
 </pre>
 </body>
 </html>

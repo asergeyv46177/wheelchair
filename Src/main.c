@@ -37,8 +37,8 @@
   ******************************************************************************
   */
 	
-#pragma push
-#pragma O0
+//#pragma push
+//#pragma O0
 
 
 #include "main.h"
@@ -114,20 +114,51 @@ static void MX_TIM1_Init(void);
 void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
 
 
-/*
-	Осуществляет мигание диодом заданное количество раз
-	@param countBlink заданное количество раз
+
+
+
+
+/**
+* @brief This function handles ADC1, ADC2 and ADC3 global interrupts.
 */
-void ledBlinkWithCountBlink(int countBlink);
+void ADC_IRQHandler(void)
+{
+  /* USER CODE BEGIN ADC_IRQn 0 */
+
+  /* USER CODE END ADC_IRQn 0 */
+  HAL_ADC_IRQHandler(&hadc1);
+  HAL_ADC_IRQHandler(&hadc2);
+	
+//	HAL_ADC_Start_IT(&hadc1);
+  /* USER CODE BEGIN ADC_IRQn 1 */
+
+  /* USER CODE END ADC_IRQn 1 */
+}
+
+
+
+
+
+
+void enableInterruptADC();
+
 /*
-	Осуществляет задержку для корректного входа в меню
+	Запустить таймер
 */
-void waitForExpectedBehavior();
+void startTimer();
 /*
-	Осуществляет мигание диодом c заданной частотой
-	@param frequency заданная частота
+	Остановить таймер
 */
-void ledBlinkWithFrequency(float frequency);
+void stopTimer();
+/*
+	Поизвести звуковые сигналы заданное количество раз
+	@param numberOfSignals заданное количество сигналов 
+*/
+void signalsWithNumberOfSignals(int numberOfSignals);
+/*
+	Осуществляет синхронную задержку
+*/
+void synchronousDelay();
 
 
 /*
@@ -175,7 +206,16 @@ float obtainAccelerationYAxis();
 */
 float obtainAccelerationZAxis();
 
-
+/*
+	Передача сигнала через ЦАП для движения в сторону
+	@param currentAngel значение для вывода
+*/
+void sidewaysDACWithDACValue(int dacValue);
+/*
+	Передача сигнала через ЦАП для движения прямо
+	@param currentAngel значение для вывода
+*/
+void straightDACWithDACValue(int dacValue);
 /*
 	Передача данных в ЦАП для движение вперед
 	@param currentAngel текущий угол в градусах
@@ -198,6 +238,12 @@ int convertAngelToDACValue(float currentAngel);
 	@return напряжение в вольтах
 */
 float currentVoltageWithHandleType(ADC_HandleTypeDef handleTypeADC);
+/*
+	Получить текущие значение от АЦП
+	@param handleTypeADC структура, которая содержит информацию о конфигурации для указанного АЦП
+	@return текущие значение
+*/
+float currentADCValueWithHandleType(ADC_HandleTypeDef handleTypeADC);
 /*
 	Конвертация градусов текущего угла в период сигнала для динамика
 	@param currentAngel текущий угол в градусах
@@ -256,6 +302,10 @@ float sidewaysMotionVoltageADC();
 
 
 /*
+Управление с помощью джойстика
+*/
+void joystickControl();
+/*
 	Управление с помощью датчика
 */
 void sensorControl();
@@ -268,6 +318,28 @@ void sensitivitySetting();
 struct AngleOfRotationXYZAxis xyzStartAngles = {0,0,0};
 int maximumAngleSensitivity = SCS_MaximumAngleSensitivity_Normal;
 int controlFlag = SCS_Sensor_isEnable;
+//int controlFlag = SCS_Joystick_isEnable;
+
+//void ADC_IRQHandler()
+//{
+//	startTimer();
+//	speakerWithSignalPeriod(0x7FFF / 4);
+////	controlFlag = SCS_Joystick_isEnable;
+//}
+
+
+void HAL_ADC_LevelOutOfWindowCallback(ADC_HandleTypeDef* hadc)
+{
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hadc);
+	
+	startTimer();
+	speakerWithSignalPeriod(0xFFFF);
+	
+  /* NOTE : This function Should not be modified, when the callback is needed,
+            the HAL_ADC_LevelOoutOfWindowCallback could be implemented in the user file
+   */
+}
 
 int main(void)
 {
@@ -280,87 +352,63 @@ int main(void)
 	MX_DAC_Init();
 	MX_I2C1_Init();
 	MX_TIM1_Init();
-
-	prepareI2C();
 	
+	ADC_AnalogWDGConfTypeDef analogWDGConfTypeDef;
+	analogWDGConfTypeDef.WatchdogMode = ADC_ANALOGWATCHDOG_SINGLE_REG;
+	analogWDGConfTypeDef.Channel = ADC_CHANNEL_0;
+	analogWDGConfTypeDef.HighThreshold = 0xAAB;
+	analogWDGConfTypeDef.LowThreshold = 0x4D9;
+	analogWDGConfTypeDef.ITMode = ENABLE;
+	HAL_ADC_AnalogWDGConfig(&hadc1, &analogWDGConfTypeDef);
+	HAL_NVIC_EnableIRQ(ADC_IRQn);
+
+	
+	HAL_ADC_Start_IT(&hadc1);
+	prepareI2C();
 	struct AngleOfRotationXYZAxis xyzCurrentAnglesWithStartAngles = {0,0,0};
 	struct GyroscopeValueXYZ xyzCurrentGValue = {0,0,0};
 	xyzStartAngles = createStartAngleOfRotation();
+//	enableInterruptADC();
+	
+//	NVIC->ICER[0]=(1<<18);
 	
 	while (1)
   {
+//		joystickControl();
 		sensorControl();
   }
 }
 
+void joystickControl()
+{
+	while(SCS_Joystick_isEnable == controlFlag)
+	{
+		straightDACWithDACValue(currentADCValueWithHandleType(hadc1));
+		sidewaysDACWithDACValue(currentADCValueWithHandleType(hadc2));
+	}
+}
+
 void sensorControl()
 {
+	struct AngleOfRotationXYZAxis xyzCurrentAnglesWithStartAngles = {0,0,0};
 	while(SCS_Sensor_isEnable == controlFlag)
 	{		
 		if (obtainCurrentGyroscopeValue().yGValue > SCS_AccelerometerLimit)
 		{
+//			enableInterruptADC();
 			sensitivitySetting();
 		}
-		struct AngleOfRotationXYZAxis xyzCurrentAnglesWithStartAngles = obtainCurrentAngleOfRotationWithStartAngle();
+		xyzCurrentAnglesWithStartAngles = obtainCurrentAngleOfRotationWithStartAngle();
 		straightMotionDACWithCurrentAngel(xyzCurrentAnglesWithStartAngles.xAngle);
 		sidewaysMotionDACWithCurrentAngel(xyzCurrentAnglesWithStartAngles.zAngle);
 	}
 }
 
-float straightMotionVoltageADC()
-{
-	return currentVoltageWithHandleType(hadc1);
-}
-
-float sidewaysMotionVoltageADC()
-{
-	return currentVoltageWithHandleType(hadc2);
-}
-
-float currentVoltageWithHandleType(ADC_HandleTypeDef handleTypeADC)
-{
-	HAL_ADC_Start(&handleTypeADC);
-	HAL_ADC_PollForConversion(&handleTypeADC, 100);
-	float currentVoltage = ((float)HAL_ADC_GetValue(&handleTypeADC)) * 3.3 / 4096;
-	HAL_ADC_Stop(&handleTypeADC);
-	return currentVoltage;
-}
-
-void straightMotionDACWithCurrentAngel(float currentAngel)
-{
-	int dacValue = convertAngelToDACValue(currentAngel);
-	DAC->DHR12R1 = dacValue;
-	DAC->SWTRIGR|=1;
-}
-
-void sidewaysMotionDACWithCurrentAngel(float currentAngel)
-{
-	int dacValue = convertAngelToDACValue(currentAngel);
-	DAC->DHR12R2= dacValue;
-	DAC->SWTRIGR|=2;
-}
-
-int convertAngelToDACValue(float currentAngel)
-{	
-	if (currentAngel > maximumAngleSensitivity)
-	{
-		return 0xFFF;
-	}
-	else if (currentAngel < - maximumAngleSensitivity)
-	{
-		return 0x0;
-	}
-	else
-	{
-		return 0xFFF / 2 * (1 + currentAngel / maximumAngleSensitivity); // 0xFFF - 12 bit DAC
-	}
-}
-
 void sensitivitySetting()
 {
-//	ledBlinkWithCountBlink(4);
-	waitForExpectedBehavior();
 	controlFlag = SCS_Settings_isEnable;
+	signalsWithNumberOfSignals(1);
+	startTimer();
 	while(SCS_Settings_isEnable == controlFlag)
 	{
 		float xAngle = obtainCurrentAngleOfRotationWithStartAngle().xAngle;
@@ -381,11 +429,95 @@ void sensitivitySetting()
 		if (obtainCurrentGyroscopeValue().yGValue > SCS_AccelerometerLimit)
 		{
 			controlFlag = SCS_Sensor_isEnable;
-			waitForExpectedBehavior();
 		}
 		// Uchest', chto zdes' mojet srabotat' joystick
 	}
-//	ledBlinkWithCountBlink(2);
+	stopTimer();
+	signalsWithNumberOfSignals(2);
+}
+
+float straightMotionVoltageADC()
+{
+	return currentVoltageWithHandleType(hadc1);
+}
+
+float sidewaysMotionVoltageADC()
+{
+	return currentVoltageWithHandleType(hadc2);
+}
+
+float currentVoltageWithHandleType(ADC_HandleTypeDef handleTypeADC)
+{
+	float currentADCValue = currentADCValueWithHandleType(handleTypeADC);
+	return (currentADCValue) * 3.3 / 4096;
+}
+
+float currentADCValueWithHandleType(ADC_HandleTypeDef handleTypeADC)
+{
+//	HAL_ADC_Start(&handleTypeADC);
+	HAL_ADC_PollForConversion(&handleTypeADC, 100);
+	float currentADCValue = (float)HAL_ADC_GetValue(&handleTypeADC);
+//	HAL_ADC_Stop(&handleTypeADC);
+	return currentADCValue;
+}
+
+void straightMotionDACWithCurrentAngel(float currentAngel)
+{
+	int dacValue = convertAngelToDACValue(currentAngel);
+	straightDACWithDACValue(dacValue);
+}
+
+void sidewaysMotionDACWithCurrentAngel(float currentAngel)
+{
+	int dacValue = convertAngelToDACValue(currentAngel);
+	sidewaysDACWithDACValue(dacValue);
+}
+
+void straightDACWithDACValue(int dacValue)
+{
+	DAC->DHR12R1 = dacValue;
+	DAC->SWTRIGR|=1;
+}
+
+void sidewaysDACWithDACValue(int dacValue)
+{
+	DAC->DHR12R2= dacValue;
+	DAC->SWTRIGR|=2;
+}
+
+void enableInterruptADC()
+{
+//	ADC1->CR1 |= ADC_CR1_AWDEN | ADC_CR1_AWDSGL | ADC_CR1_AWDIE | ADC_CHANNEL_0;
+//	ADC1->LTR = 0x4D9;
+//	ADC1->HTR = 0XAAB;
+	
+	
+	ADC_AnalogWDGConfTypeDef analogWDGConfTypeDef;
+	analogWDGConfTypeDef.WatchdogMode = ADC_ANALOGWATCHDOG_SINGLE_REG;
+	analogWDGConfTypeDef.Channel = ADC_CHANNEL_0;
+	analogWDGConfTypeDef.HighThreshold = 0xAAB;
+	analogWDGConfTypeDef.LowThreshold = 0x4D9;
+	analogWDGConfTypeDef.ITMode = ENABLE;
+	HAL_ADC_AnalogWDGConfig(&hadc1, &analogWDGConfTypeDef);
+	HAL_NVIC_EnableIRQ(ADC_IRQn);
+	
+//	HAL_NVIC_SetPriority(ADC_IRQn, 5, 0);
+}
+
+int convertAngelToDACValue(float currentAngel) //!
+{	
+	if (currentAngel > maximumAngleSensitivity)
+	{
+		return 0xFFF;
+	}
+	else if (currentAngel < - maximumAngleSensitivity)
+	{
+		return 0x0;
+	}
+	else
+	{
+		return 0xFFF / 2 * (1 + currentAngel / maximumAngleSensitivity); // 0xFFF - 12 bit DAC
+	}
 }
 
 float convertCurrentXAngelToSignalPeriod(float currentXAngel)
@@ -402,6 +534,34 @@ float convertCurrentXAngelToSignalPeriod(float currentXAngel)
 			return fullScale / 2;
 		}
 		return signalPeriod;
+}
+
+void signalsWithNumberOfSignals(int numberOfSignals)
+{
+	for(int currentSignalNumber = 0; currentSignalNumber < numberOfSignals; ++currentSignalNumber)
+	{
+		startTimer();
+		speakerWithSignalPeriod(0x7FFF);
+		synchronousDelay();
+		
+		stopTimer();
+		synchronousDelay();
+	}
+}
+
+void startTimer()
+{
+	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
+}
+
+void stopTimer()
+{
+	HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_1);
+}
+
+void synchronousDelay()
+{
+	for(int i = 0; i < T_SEC / 2; ++i){}
 }
 
 void speakerWithSignalPeriod(float signalPeriod)
@@ -612,31 +772,8 @@ void prepareI2C()
 		for(int i=0; i<0xFF; i++){}
 }
 
-void ledBlinkWithCountBlink(int countBlink)
-{
-	for(int currentCountBlink = 0; currentCountBlink < countBlink; ++currentCountBlink)
-	{
-		HAL_GPIO_WritePin(GPIOE, GPIO_PIN_0, GPIO_PIN_RESET);
-		waitForExpectedBehavior();
-		HAL_GPIO_WritePin(GPIOE, GPIO_PIN_0, GPIO_PIN_SET);
-		waitForExpectedBehavior();
-	}
-}
 
-void waitForExpectedBehavior()
-{
-	for(int i = 0; i < T_SEC / 2; ++i){}
-}
-
-void ledBlinkWithFrequency(float frequency)
-{
-	HAL_GPIO_WritePin(GPIOE, GPIO_PIN_0, GPIO_PIN_RESET);
-	for(int i = 0; i < frequency * T_SEC / 10; ++i){}
-	HAL_GPIO_WritePin(GPIOE, GPIO_PIN_0, GPIO_PIN_SET);
-	for(int i = 0; i < frequency * T_SEC / 10; ++i){}
-}
-
-#pragma pop
+//#pragma pop
 
 /**
   * @brief System Clock Configuration
@@ -704,17 +841,17 @@ static void MX_ADC1_Init(void)
     /**Configure the global features of the ADC (Clock, Resolution, Data Alignment and number of conversion) 
     */
   hadc1.Instance = ADC1;
-  hadc1.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV6;
+  hadc1.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV8;
   hadc1.Init.Resolution = ADC_RESOLUTION_12B;
   hadc1.Init.ScanConvMode = DISABLE;
-  hadc1.Init.ContinuousConvMode = DISABLE;
+  hadc1.Init.ContinuousConvMode = ENABLE;
   hadc1.Init.DiscontinuousConvMode = DISABLE;
   hadc1.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
   hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
   hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
   hadc1.Init.NbrOfConversion = 1;
   hadc1.Init.DMAContinuousRequests = DISABLE;
-  hadc1.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
+  hadc1.Init.EOCSelection = ADC_EOC_SEQ_CONV;
   if (HAL_ADC_Init(&hadc1) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
@@ -724,12 +861,11 @@ static void MX_ADC1_Init(void)
     */
   sConfig.Channel = ADC_CHANNEL_0;
   sConfig.Rank = 1;
-  sConfig.SamplingTime = ADC_SAMPLETIME_3CYCLES;
+  sConfig.SamplingTime = ADC_SAMPLETIME_480CYCLES;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
   }
-
 }
 
 /* ADC2 init function */
@@ -766,7 +902,7 @@ static void MX_ADC2_Init(void)
   {
     _Error_Handler(__FILE__, __LINE__);
   }
-
+	HAL_ADC_Start_IT(&hadc2);
 }
 
 /* DAC init function */
@@ -842,7 +978,7 @@ static void MX_TIM1_Init(void)
 	pwm.OCFastMode = TIM_OCFAST_DISABLE;
 	HAL_TIM_PWM_ConfigChannel(&htim1, &pwm, TIM_CHANNEL_1);
 
-	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
+//	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
 }
 
 /* Configure pins */
