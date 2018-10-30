@@ -48,44 +48,44 @@ compiling main.c...
   float obtainAccelerationYAxis();
 ../Src/main.c(182): warning:  #1295-D: Deprecated declaration obtainAccelerationZAxis - give arg types
   float obtainAccelerationZAxis();
-../Src/main.c(257): warning:  #1295-D: Deprecated declaration obtainCurrentAngleOfRotation - give arg types
+../Src/main.c(252): warning:  #1295-D: Deprecated declaration obtainCurrentAngleOfRotation - give arg types
   struct AngleOfRotationXYZAxis obtainCurrentAngleOfRotation();
-../Src/main.c(262): warning:  #1295-D: Deprecated declaration createStartAngleOfRotation - give arg types
+../Src/main.c(257): warning:  #1295-D: Deprecated declaration createStartAngleOfRotation - give arg types
   struct AngleOfRotationXYZAxis createStartAngleOfRotation();
-../Src/main.c(267): warning:  #1295-D: Deprecated declaration obtainCurrentAngleOfRotationWithStartAngle - give arg types
+../Src/main.c(262): warning:  #1295-D: Deprecated declaration obtainCurrentAngleOfRotationWithStartAngle - give arg types
   struct AngleOfRotationXYZAxis obtainCurrentAngleOfRotationWithStartAngle();
-../Src/main.c(272): warning:  #1295-D: Deprecated declaration obtainCurrentGyroscopeValue - give arg types
+../Src/main.c(267): warning:  #1295-D: Deprecated declaration obtainCurrentGyroscopeValue - give arg types
   struct GyroscopeValueXYZ obtainCurrentGyroscopeValue();
-../Src/main.c(277): warning:  #1295-D: Deprecated declaration straightMotionVoltageADC - give arg types
+../Src/main.c(272): warning:  #1295-D: Deprecated declaration straightMotionVoltageADC - give arg types
   float straightMotionVoltageADC();
-../Src/main.c(282): warning:  #1295-D: Deprecated declaration sidewaysMotionVoltageADC - give arg types
+../Src/main.c(277): warning:  #1295-D: Deprecated declaration sidewaysMotionVoltageADC - give arg types
   float sidewaysMotionVoltageADC();
-../Src/main.c(288): warning:  #1295-D: Deprecated declaration joystickControl - give arg types
+../Src/main.c(283): warning:  #1295-D: Deprecated declaration joystickControl - give arg types
   void joystickControl();
-../Src/main.c(292): warning:  #1295-D: Deprecated declaration sensorControl - give arg types
+../Src/main.c(287): warning:  #1295-D: Deprecated declaration sensorControl - give arg types
   void sensorControl();
-../Src/main.c(296): warning:  #1295-D: Deprecated declaration sensitivitySetting - give arg types
+../Src/main.c(291): warning:  #1295-D: Deprecated declaration sensitivitySetting - give arg types
   void sensitivitySetting();
-../Src/main.c(343): warning:  #177-D: variable "xyzCurrentAnglesWithStartAngles"  was declared but never referenced
+../Src/main.c(336): warning:  #177-D: variable "xyzCurrentAnglesWithStartAngles"  was declared but never referenced
   	struct AngleOfRotationXYZAxis xyzCurrentAnglesWithStartAngles = {0,0,0};
-../Src/main.c(344): warning:  #177-D: variable "xyzCurrentGValue"  was declared but never referenced
+../Src/main.c(337): warning:  #177-D: variable "xyzCurrentGValue"  was declared but never referenced
   	struct GyroscopeValueXYZ xyzCurrentGValue = {0,0,0};
-../Src/main.c(358): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+../Src/main.c(359): warning:  #1035-D: single-precision operand implicitly converted to double-precision
   		if (obtainCurrentGyroscopeValue().yGValue > 
 CS_AccelerometerLimit)
-../Src/main.c(373): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+../Src/main.c(374): warning:  #1035-D: single-precision operand implicitly converted to double-precision
   		if (obtainCurrentGyroscopeValue().yGValue > 
 CS_AccelerometerLimit)
-../Src/main.c(405): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+../Src/main.c(406): warning:  #1035-D: single-precision operand implicitly converted to double-precision
   		if (obtainCurrentGyroscopeValue().yGValue > 
 CS_AccelerometerLimit)
-../Src/main.c(427): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+../Src/main.c(428): warning:  #1035-D: single-precision operand implicitly converted to double-precision
   	return (currentADCValue) * 3.3 / 4096;
-../Src/main.c(575): warning:  #161-D: unrecognized #pragma
+../Src/main.c(576): warning:  #161-D: unrecognized #pragma
   #pragma mark - Work with sensor 
 ../Src/main.c: 26 warnings, 0 errors
 linking...
-Program Size: Code=17400 RO-data=744 RW-data=28 ZI-data=1404  
+Program Size: Code=17430 RO-data=746 RW-data=28 ZI-data=1404  
 FromELF: creating hex file...
 "stm32f407-0\stm32f407-0.axf" - 0 Error(s), 26 Warning(s).
 
@@ -110,7 +110,7 @@ Package Vendor: Keil
 <h2>Collection of Component Files used:</h2>
 
    * Component: ARM::CMSIS:CORE:5.0.1
-Build Time Elapsed:  00:00:05
+Build Time Elapsed:  00:00:04
 </pre>
 </body>
 </html>

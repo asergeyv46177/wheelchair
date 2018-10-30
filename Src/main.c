@@ -183,11 +183,6 @@ float obtainAccelerationZAxis();
 
 
 /*
-	Проверка выхода напряжения за допустимые границы
-	@param currentVoltage текущее значение напряжения
-*/
-bool checkForOvervoltage(float currentVoltage);
-/*
 	Передача сигнала через ЦАП для движения в сторону
 	@param dacValue значение для вывода
 */
@@ -308,20 +303,18 @@ void TIM2_IRQHandler()
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
-	if (checkForOvervoltage(straightMotionVoltageADC())
-			|| checkForOvervoltage(sidewaysMotionVoltageADC()))
+	float left = straightMotionVoltageADC();
+	float right = sidewaysMotionVoltageADC();
+	if (V_VCC / 2 - SCS_ADCVoltageDelta > straightMotionVoltageADC()
+			|| V_VCC / 2 + SCS_ADCVoltageDelta < straightMotionVoltageADC()
+			|| V_VCC / 2 - SCS_ADCVoltageDelta > sidewaysMotionVoltageADC()
+			|| V_VCC / 2 + SCS_ADCVoltageDelta < sidewaysMotionVoltageADC())
 	{
-		controlFlag = SCS_Sensor_isEnable;
+		controlFlag = SCS_Joystick_isEnable;
 		signalsWithNumberOfSignals(1);
 		
 		HAL_TIM_Base_Stop_IT(&htim2);
 	}
-}
-
-bool checkForOvervoltage(float currentVoltage)
-{
-	return V_VCC / 2 - SCS_ADCVoltageDelta > currentVoltage
-					|| V_VCC / 2 + SCS_ADCVoltageDelta < currentVoltage; 
 }
 
 
@@ -344,15 +337,23 @@ int main(void)
 	struct GyroscopeValueXYZ xyzCurrentGValue = {0,0,0};
 	xyzStartAngles = createStartAngleOfRotation();
 	
+	
 	while (1)
   {
-		joystickControl();
-		sensorControl();
+		if (SCS_Joystick_isEnable == controlFlag)
+		{
+			joystickControl();
+		}
+		else if (SCS_Sensor_isEnable == controlFlag)
+		{
+			sensorControl();
+		}
   }
 }
 
 void joystickControl()
 {
+	HAL_TIM_Base_Stop_IT(&htim2);
 	while(SCS_Joystick_isEnable == controlFlag)
 	{
 		if (obtainCurrentGyroscopeValue().yGValue > SCS_AccelerometerLimit)
@@ -366,12 +367,13 @@ void joystickControl()
 
 void sensorControl()
 {
-	signalsWithNumberOfSignals(3);
+	signalsWithNumberOfSignals(2);
 	HAL_TIM_Base_Start_IT(&htim2);
 	while(SCS_Sensor_isEnable == controlFlag)
 	{		
 		if (obtainCurrentGyroscopeValue().yGValue > SCS_AccelerometerLimit)
 		{
+			controlFlag = SCS_Settings_isEnable;
 			sensitivitySetting();
 		}
 		struct AngleOfRotationXYZAxis xyzCurrentAnglesWithStartAngles = obtainCurrentAngleOfRotationWithStartAngle();
@@ -382,7 +384,6 @@ void sensorControl()
 
 void sensitivitySetting()
 {
-	controlFlag = SCS_Settings_isEnable;
 	signalsWithNumberOfSignals(4);
 	startTimer();
 	while(SCS_Settings_isEnable == controlFlag)
@@ -408,7 +409,7 @@ void sensitivitySetting()
 		}
 	}
 	stopTimer();
-	signalsWithNumberOfSignals(2);
+	signalsWithNumberOfSignals(3);
 }
 
 float straightMotionVoltageADC()
@@ -517,7 +518,7 @@ void stopTimer()
 
 void synchronousDelay()
 {
-	for(int i = 0; i < T_SEC / 2; ++i){}
+	for(int i = 0; i < T_SEC / 10; ++i){}
 }
 
 void speakerWithSignalPeriod(float signalPeriod)
@@ -623,7 +624,7 @@ int readI2C(int address)
 	I2C1->CCR = 0x3C;
 	I2C1->TRISE = 0xD;
 	I2C1->CR1 = I2C_CR1_PE;
-	for(int i=0; i<0xFFF; i++){}		
+//	for(int i=0; i<0xFFF; i++){}		
 	I2C1->CR1 |= I2C_CR1_START;
 	while (!(I2C1->SR1 & I2C_SR1_SB)) {}
 	(void) I2C1->SR1;
@@ -659,7 +660,7 @@ int readI2C(int address)
 	while(I2C1->SR1 & I2C_SR1_STOPF){}
 	while((I2C1->SR2)&&(0x2)==0x2){}
 	I2C1->CR1 |= I2C_CR1_SWRST;
-	for(int i=0; i<0xFF; i++){}
+//	for(int i=0; i<0xFF; i++){}
 	return data_i2c;
 }
 
@@ -949,7 +950,6 @@ static void MX_TIM2_Init(void)
 	HAL_NVIC_SetPriorityGrouping( NVIC_PRIORITYGROUP_0 );
   HAL_NVIC_SetPriority( TIM2_IRQn, 0, 0 );
 	NVIC_EnableIRQ(TIM2_IRQn);
-	HAL_TIM_Base_Start_IT(&htim2);
 }
 
 /* Configure pins */
