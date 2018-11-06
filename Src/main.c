@@ -116,7 +116,14 @@ static void MX_TIM1_Init(void);
 static void MX_TIM2_Init(void);
 void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
 
-
+/*
+	Запретить прерывание, если оно разрешено
+*/
+void disableTimerInterruptIfNeeded();
+/*
+	Разрешить прерывание, если оно запрещено 
+*/
+void enableTimerInterruptIfNeeded();
 /*
 	Запустить таймер
 */
@@ -311,9 +318,11 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 			|| V_VCC / 2 + SCS_ADCVoltageDelta < sidewaysMotionVoltageADC())
 	{
 		controlFlag = SCS_Joystick_isEnable;
+		
+		synchronousDelay();
 		signalsWithNumberOfSignals(1);
 		
-		HAL_TIM_Base_Stop_IT(&htim2);
+		disableTimerInterruptIfNeeded();
 	}
 }
 
@@ -342,10 +351,16 @@ int main(void)
   {
 		if (SCS_Joystick_isEnable == controlFlag)
 		{
+			synchronousDelay();
+			signalsWithNumberOfSignals(2);
+			
 			joystickControl();
 		}
 		else if (SCS_Sensor_isEnable == controlFlag)
 		{
+			synchronousDelay();
+			signalsWithNumberOfSignals(3);
+			
 			sensorControl();
 		}
   }
@@ -353,7 +368,6 @@ int main(void)
 
 void joystickControl()
 {
-	HAL_TIM_Base_Stop_IT(&htim2);
 	while(SCS_Joystick_isEnable == controlFlag)
 	{
 		if (obtainCurrentGyroscopeValue().yGValue > SCS_AccelerometerLimit)
@@ -365,26 +379,43 @@ void joystickControl()
 	}
 }
 
+void disableTimerInterruptIfNeeded()
+{
+	if (0x1 == htim2.Instance->DIER && SCS_Joystick_isEnable == controlFlag)
+	{
+		HAL_TIM_Base_Stop_IT(&htim2);
+	}
+}
+
+void enableTimerInterruptIfNeeded()
+{
+	if (0x0 == htim2.Instance->DIER && SCS_Sensor_isEnable == controlFlag)
+	{
+		HAL_TIM_Base_Start_IT(&htim2);
+	}
+}
+
 void sensorControl()
 {
-	signalsWithNumberOfSignals(2);
-	HAL_TIM_Base_Start_IT(&htim2);
 	while(SCS_Sensor_isEnable == controlFlag)
 	{		
 		if (obtainCurrentGyroscopeValue().yGValue > SCS_AccelerometerLimit)
 		{
+			synchronousDelay();
+			signalsWithNumberOfSignals(4);
+			
 			controlFlag = SCS_Settings_isEnable;
 			sensitivitySetting();
 		}
 		struct AngleOfRotationXYZAxis xyzCurrentAnglesWithStartAngles = obtainCurrentAngleOfRotationWithStartAngle();
 		straightMotionDACWithCurrentAngel(xyzCurrentAnglesWithStartAngles.xAngle);
 		sidewaysMotionDACWithCurrentAngel(xyzCurrentAnglesWithStartAngles.zAngle);
+		enableTimerInterruptIfNeeded();
 	}
 }
 
 void sensitivitySetting()
 {
-	signalsWithNumberOfSignals(4);
 	startTimer();
 	while(SCS_Settings_isEnable == controlFlag)
 	{
@@ -405,11 +436,12 @@ void sensitivitySetting()
 		
 		if (obtainCurrentGyroscopeValue().yGValue > SCS_AccelerometerLimit)
 		{
+			stopTimer();
+			signalsWithNumberOfSignals(5);
+			
 			controlFlag = SCS_Sensor_isEnable;
 		}
 	}
-	stopTimer();
-	signalsWithNumberOfSignals(3);
 }
 
 float straightMotionVoltageADC()
