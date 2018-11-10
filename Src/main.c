@@ -68,11 +68,12 @@ Sensitivity
 #define SCS_MaximumAngleSensitivity_Normal	30
 #define SCS_MaximumAngleSensitivity_Hight	20
 
+#define SCS_SaveAngleSensitivity	10
+
 /*
 Sensitivity settings
 */
-#define SCS_GyroscopeValueForLow_Y	-30
-#define SCS_GyroscopeValueForHight_Y	30
+#define SCS_GyroscopeValueForSensitivityStep_Y	30
 
 /*
 Interrupt
@@ -421,11 +422,11 @@ void sensitivitySetting()
 	{
 		float xAngle = obtainCurrentAngleOfRotationWithStartAngle().xAngle;
 		speakerWithSignalPeriod(convertCurrentXAngelToSignalPeriod(xAngle));
-		if (xAngle > SCS_GyroscopeValueForHight_Y)
+		if (xAngle > SCS_GyroscopeValueForSensitivityStep_Y)
 		{
 			maximumAngleSensitivity = SCS_MaximumAngleSensitivity_Hight;
 		}
-		else if (xAngle > SCS_GyroscopeValueForLow_Y)
+		else if (xAngle > - SCS_GyroscopeValueForSensitivityStep_Y)
 		{
 			maximumAngleSensitivity = SCS_MaximumAngleSensitivity_Normal;
 		}
@@ -503,10 +504,22 @@ int convertAngelToDACValue(float currentAngel)
 	{
 		return 0x0;
 	}
+	else if (currentAngel < SCS_SaveAngleSensitivity 
+						&& currentAngel > - SCS_SaveAngleSensitivity)
+	{
+		return 0xFFF / 2;
+	}
+	
+	int saveAngle = 0;
+	if (currentAngel > 0)
+	{
+		saveAngle = SCS_SaveAngleSensitivity;
+	}
 	else
 	{
-		return 0xFFF / 2 * (1 + currentAngel / maximumAngleSensitivity); // 0xFFF - 12 bit DAC
+		saveAngle = - SCS_SaveAngleSensitivity;
 	}
+	return 0xFFF / 2 * (1 + ((currentAngel - saveAngle) / (maximumAngleSensitivity - SCS_SaveAngleSensitivity)));
 }
 
 float convertCurrentXAngelToSignalPeriod(float currentXAngel)
@@ -975,7 +988,7 @@ static void MX_TIM2_Init(void)
 
 	htim2.Instance = TIM2;
 	htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
-	htim2.Init.Prescaler = 0xF;
+	htim2.Init.Prescaler = 500;
 	htim2.Init.Period = 0xFFFF;
 	htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
 	HAL_TIM_Base_Init(&htim2);

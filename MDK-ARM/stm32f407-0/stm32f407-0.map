@@ -1319,7 +1319,7 @@ Image Symbol Table
     i.MX_TIM1_Init                           0x080021e0   Section        0  main.o(i.MX_TIM1_Init)
     MX_TIM1_Init                             0x080021e1   Thumb Code    78  main.o(i.MX_TIM1_Init)
     i.MX_TIM2_Init                           0x0800223c   Section        0  main.o(i.MX_TIM2_Init)
-    MX_TIM2_Init                             0x0800223d   Thumb Code    78  main.o(i.MX_TIM2_Init)
+    MX_TIM2_Init                             0x0800223d   Thumb Code    80  main.o(i.MX_TIM2_Init)
     i.MemManage_Handler                      0x08002294   Section        0  stm32f4xx_it.o(i.MemManage_Handler)
     i.NMI_Handler                            0x08002296   Section        0  stm32f4xx_it.o(i.NMI_Handler)
     i.PendSV_Handler                         0x08002298   Section        0  stm32f4xx_it.o(i.PendSV_Handler)
@@ -1349,53 +1349,53 @@ Image Symbol Table
     i.angleFromProjections                   0x0800382c   Section        0  main.o(i.angleFromProjections)
     i.atan                                   0x08003948   Section        0  atan.o(i.atan)
     i.convertAngelToDACValue                 0x08003958   Section        0  main.o(i.convertAngelToDACValue)
-    i.convertCurrentXAngelToSignalPeriod     0x080039c0   Section        0  main.o(i.convertCurrentXAngelToSignalPeriod)
-    i.createStartAngleOfRotation             0x08003a48   Section        0  main.o(i.createStartAngleOfRotation)
-    i.currentADCValueWithHandleType          0x08003a68   Section        0  main.o(i.currentADCValueWithHandleType)
-    i.currentVoltageWithHandleType           0x08003aa4   Section        0  main.o(i.currentVoltageWithHandleType)
-    i.disableTimerInterruptIfNeeded          0x08003b30   Section        0  main.o(i.disableTimerInterruptIfNeeded)
-    i.enableTimerInterruptIfNeeded           0x08003b54   Section        0  main.o(i.enableTimerInterruptIfNeeded)
-    i.fabs                                   0x08003b78   Section        0  fabs.o(i.fabs)
-    i.joystickControl                        0x08003b90   Section        0  main.o(i.joystickControl)
-    i.main                                   0x08003c80   Section        0  main.o(i.main)
-    i.obtainAccelerationXAxis                0x08003d04   Section        0  main.o(i.obtainAccelerationXAxis)
-    i.obtainAccelerationYAxis                0x08003d30   Section        0  main.o(i.obtainAccelerationYAxis)
-    i.obtainAccelerationZAxis                0x08003d5c   Section        0  main.o(i.obtainAccelerationZAxis)
-    i.obtainCurrentAngleOfRotation           0x08003d88   Section        0  main.o(i.obtainCurrentAngleOfRotation)
-    i.obtainCurrentAngleOfRotationWithStartAngle 0x08003e00   Section        0  main.o(i.obtainCurrentAngleOfRotationWithStartAngle)
-    i.obtainCurrentGyroscopeValue            0x08003e88   Section        0  main.o(i.obtainCurrentGyroscopeValue)
-    i.obtainGyroscopeValueX                  0x08003eb8   Section        0  main.o(i.obtainGyroscopeValueX)
-    i.obtainGyroscopeValueY                  0x08003ee4   Section        0  main.o(i.obtainGyroscopeValueY)
-    i.obtainGyroscopeValueZ                  0x08003f10   Section        0  main.o(i.obtainGyroscopeValueZ)
-    i.prepareI2C                             0x08003f3c   Section        0  main.o(i.prepareI2C)
-    i.readI2C                                0x08004158   Section        0  main.o(i.readI2C)
-    i.sensitivitySetting                     0x080042a8   Section        0  main.o(i.sensitivitySetting)
-    i.sensorControl                          0x08004374   Section        0  main.o(i.sensorControl)
-    i.sidewaysDACWithDACValue                0x0800440c   Section        0  main.o(i.sidewaysDACWithDACValue)
-    i.sidewaysMotionDACWithCurrentAngel      0x08004428   Section        0  main.o(i.sidewaysMotionDACWithCurrentAngel)
-    i.sidewaysMotionVoltageADC               0x08004440   Section        0  main.o(i.sidewaysMotionVoltageADC)
-    i.signalsWithNumberOfSignals             0x08004484   Section        0  main.o(i.signalsWithNumberOfSignals)
-    i.speakerWithSignalPeriod                0x080044b0   Section        0  main.o(i.speakerWithSignalPeriod)
-    i.sqrt                                   0x080044d4   Section        0  sqrt.o(i.sqrt)
-    i.startTimer                             0x08004544   Section        0  main.o(i.startTimer)
-    i.stopTimer                              0x08004554   Section        0  main.o(i.stopTimer)
-    i.straightDACWithDACValue                0x08004564   Section        0  main.o(i.straightDACWithDACValue)
-    i.straightMotionDACWithCurrentAngel      0x0800457c   Section        0  main.o(i.straightMotionDACWithCurrentAngel)
-    i.straightMotionVoltageADC               0x08004594   Section        0  main.o(i.straightMotionVoltageADC)
-    i.synchronousDelay                       0x080045d8   Section        0  main.o(i.synchronousDelay)
-    .constdata                               0x080045e6   Section       24  system_stm32f4xx.o(.constdata)
-    .constdata                               0x08004600   Section      136  pow.o(.constdata)
-    bp                                       0x08004600   Data          16  pow.o(.constdata)
-    dp_h                                     0x08004610   Data          16  pow.o(.constdata)
-    dp_l                                     0x08004620   Data          16  pow.o(.constdata)
-    L                                        0x08004630   Data          48  pow.o(.constdata)
-    P                                        0x08004660   Data          40  pow.o(.constdata)
-    .constdata                               0x08004688   Section      152  atan.o(.constdata)
-    atanhi                                   0x08004688   Data          32  atan.o(.constdata)
-    atanlo                                   0x080046a8   Data          32  atan.o(.constdata)
-    aTodd                                    0x080046c8   Data          40  atan.o(.constdata)
-    aTeven                                   0x080046f0   Data          48  atan.o(.constdata)
-    .constdata                               0x08004720   Section        8  qnan.o(.constdata)
+    i.convertCurrentXAngelToSignalPeriod     0x08003a04   Section        0  main.o(i.convertCurrentXAngelToSignalPeriod)
+    i.createStartAngleOfRotation             0x08003a8c   Section        0  main.o(i.createStartAngleOfRotation)
+    i.currentADCValueWithHandleType          0x08003aac   Section        0  main.o(i.currentADCValueWithHandleType)
+    i.currentVoltageWithHandleType           0x08003ae8   Section        0  main.o(i.currentVoltageWithHandleType)
+    i.disableTimerInterruptIfNeeded          0x08003b74   Section        0  main.o(i.disableTimerInterruptIfNeeded)
+    i.enableTimerInterruptIfNeeded           0x08003b98   Section        0  main.o(i.enableTimerInterruptIfNeeded)
+    i.fabs                                   0x08003bbc   Section        0  fabs.o(i.fabs)
+    i.joystickControl                        0x08003bd4   Section        0  main.o(i.joystickControl)
+    i.main                                   0x08003cc4   Section        0  main.o(i.main)
+    i.obtainAccelerationXAxis                0x08003d48   Section        0  main.o(i.obtainAccelerationXAxis)
+    i.obtainAccelerationYAxis                0x08003d74   Section        0  main.o(i.obtainAccelerationYAxis)
+    i.obtainAccelerationZAxis                0x08003da0   Section        0  main.o(i.obtainAccelerationZAxis)
+    i.obtainCurrentAngleOfRotation           0x08003dcc   Section        0  main.o(i.obtainCurrentAngleOfRotation)
+    i.obtainCurrentAngleOfRotationWithStartAngle 0x08003e44   Section        0  main.o(i.obtainCurrentAngleOfRotationWithStartAngle)
+    i.obtainCurrentGyroscopeValue            0x08003ecc   Section        0  main.o(i.obtainCurrentGyroscopeValue)
+    i.obtainGyroscopeValueX                  0x08003efc   Section        0  main.o(i.obtainGyroscopeValueX)
+    i.obtainGyroscopeValueY                  0x08003f28   Section        0  main.o(i.obtainGyroscopeValueY)
+    i.obtainGyroscopeValueZ                  0x08003f54   Section        0  main.o(i.obtainGyroscopeValueZ)
+    i.prepareI2C                             0x08003f80   Section        0  main.o(i.prepareI2C)
+    i.readI2C                                0x0800419c   Section        0  main.o(i.readI2C)
+    i.sensitivitySetting                     0x080042ec   Section        0  main.o(i.sensitivitySetting)
+    i.sensorControl                          0x080043b8   Section        0  main.o(i.sensorControl)
+    i.sidewaysDACWithDACValue                0x08004450   Section        0  main.o(i.sidewaysDACWithDACValue)
+    i.sidewaysMotionDACWithCurrentAngel      0x0800446c   Section        0  main.o(i.sidewaysMotionDACWithCurrentAngel)
+    i.sidewaysMotionVoltageADC               0x08004484   Section        0  main.o(i.sidewaysMotionVoltageADC)
+    i.signalsWithNumberOfSignals             0x080044c8   Section        0  main.o(i.signalsWithNumberOfSignals)
+    i.speakerWithSignalPeriod                0x080044f4   Section        0  main.o(i.speakerWithSignalPeriod)
+    i.sqrt                                   0x08004518   Section        0  sqrt.o(i.sqrt)
+    i.startTimer                             0x08004588   Section        0  main.o(i.startTimer)
+    i.stopTimer                              0x08004598   Section        0  main.o(i.stopTimer)
+    i.straightDACWithDACValue                0x080045a8   Section        0  main.o(i.straightDACWithDACValue)
+    i.straightMotionDACWithCurrentAngel      0x080045c0   Section        0  main.o(i.straightMotionDACWithCurrentAngel)
+    i.straightMotionVoltageADC               0x080045d8   Section        0  main.o(i.straightMotionVoltageADC)
+    i.synchronousDelay                       0x0800461c   Section        0  main.o(i.synchronousDelay)
+    .constdata                               0x0800462a   Section       24  system_stm32f4xx.o(.constdata)
+    .constdata                               0x08004648   Section      136  pow.o(.constdata)
+    bp                                       0x08004648   Data          16  pow.o(.constdata)
+    dp_h                                     0x08004658   Data          16  pow.o(.constdata)
+    dp_l                                     0x08004668   Data          16  pow.o(.constdata)
+    L                                        0x08004678   Data          48  pow.o(.constdata)
+    P                                        0x080046a8   Data          40  pow.o(.constdata)
+    .constdata                               0x080046d0   Section      152  atan.o(.constdata)
+    atanhi                                   0x080046d0   Data          32  atan.o(.constdata)
+    atanlo                                   0x080046f0   Data          32  atan.o(.constdata)
+    aTodd                                    0x08004710   Data          40  atan.o(.constdata)
+    aTeven                                   0x08004738   Data          48  atan.o(.constdata)
+    .constdata                               0x08004768   Section        8  qnan.o(.constdata)
     .data                                    0x20000000   Section        8  main.o(.data)
     .data                                    0x20000008   Section       12  stm32f4xx_hal.o(.data)
     .data                                    0x20000014   Section        4  system_stm32f4xx.o(.data)
@@ -1616,46 +1616,46 @@ Image Symbol Table
     __set_errno                              0x08003821   Thumb Code     6  errno.o(i.__set_errno)
     angleFromProjections                     0x0800382d   Thumb Code   252  main.o(i.angleFromProjections)
     atan                                     0x08003949   Thumb Code    16  atan.o(i.atan)
-    convertAngelToDACValue                   0x08003959   Thumb Code    94  main.o(i.convertAngelToDACValue)
-    convertCurrentXAngelToSignalPeriod       0x080039c1   Thumb Code   130  main.o(i.convertCurrentXAngelToSignalPeriod)
-    createStartAngleOfRotation               0x08003a49   Thumb Code    32  main.o(i.createStartAngleOfRotation)
-    currentADCValueWithHandleType            0x08003a69   Thumb Code    60  main.o(i.currentADCValueWithHandleType)
-    currentVoltageWithHandleType             0x08003aa5   Thumb Code   124  main.o(i.currentVoltageWithHandleType)
-    disableTimerInterruptIfNeeded            0x08003b31   Thumb Code    28  main.o(i.disableTimerInterruptIfNeeded)
-    enableTimerInterruptIfNeeded             0x08003b55   Thumb Code    26  main.o(i.enableTimerInterruptIfNeeded)
-    fabs                                     0x08003b79   Thumb Code    24  fabs.o(i.fabs)
-    joystickControl                          0x08003b91   Thumb Code   220  main.o(i.joystickControl)
-    main                                     0x08003c81   Thumb Code   124  main.o(i.main)
-    obtainAccelerationXAxis                  0x08003d05   Thumb Code    40  main.o(i.obtainAccelerationXAxis)
-    obtainAccelerationYAxis                  0x08003d31   Thumb Code    40  main.o(i.obtainAccelerationYAxis)
-    obtainAccelerationZAxis                  0x08003d5d   Thumb Code    40  main.o(i.obtainAccelerationZAxis)
-    obtainCurrentAngleOfRotation             0x08003d89   Thumb Code   120  main.o(i.obtainCurrentAngleOfRotation)
-    obtainCurrentAngleOfRotationWithStartAngle 0x08003e01   Thumb Code   130  main.o(i.obtainCurrentAngleOfRotationWithStartAngle)
-    obtainCurrentGyroscopeValue              0x08003e89   Thumb Code    48  main.o(i.obtainCurrentGyroscopeValue)
-    obtainGyroscopeValueX                    0x08003eb9   Thumb Code    40  main.o(i.obtainGyroscopeValueX)
-    obtainGyroscopeValueY                    0x08003ee5   Thumb Code    40  main.o(i.obtainGyroscopeValueY)
-    obtainGyroscopeValueZ                    0x08003f11   Thumb Code    40  main.o(i.obtainGyroscopeValueZ)
-    prepareI2C                               0x08003f3d   Thumb Code   536  main.o(i.prepareI2C)
-    readI2C                                  0x08004159   Thumb Code   330  main.o(i.readI2C)
-    sensitivitySetting                       0x080042a9   Thumb Code   186  main.o(i.sensitivitySetting)
-    sensorControl                            0x08004375   Thumb Code   140  main.o(i.sensorControl)
-    sidewaysDACWithDACValue                  0x0800440d   Thumb Code    22  main.o(i.sidewaysDACWithDACValue)
-    sidewaysMotionDACWithCurrentAngel        0x08004429   Thumb Code    24  main.o(i.sidewaysMotionDACWithCurrentAngel)
-    sidewaysMotionVoltageADC                 0x08004441   Thumb Code    64  main.o(i.sidewaysMotionVoltageADC)
-    signalsWithNumberOfSignals               0x08004485   Thumb Code    40  main.o(i.signalsWithNumberOfSignals)
-    speakerWithSignalPeriod                  0x080044b1   Thumb Code    32  main.o(i.speakerWithSignalPeriod)
-    sqrt                                     0x080044d5   Thumb Code   110  sqrt.o(i.sqrt)
-    startTimer                               0x08004545   Thumb Code    12  main.o(i.startTimer)
-    stopTimer                                0x08004555   Thumb Code    12  main.o(i.stopTimer)
-    straightDACWithDACValue                  0x08004565   Thumb Code    20  main.o(i.straightDACWithDACValue)
-    straightMotionDACWithCurrentAngel        0x0800457d   Thumb Code    24  main.o(i.straightMotionDACWithCurrentAngel)
-    straightMotionVoltageADC                 0x08004595   Thumb Code    64  main.o(i.straightMotionVoltageADC)
-    synchronousDelay                         0x080045d9   Thumb Code    14  main.o(i.synchronousDelay)
-    AHBPrescTable                            0x080045e6   Data          16  system_stm32f4xx.o(.constdata)
-    APBPrescTable                            0x080045f6   Data           8  system_stm32f4xx.o(.constdata)
-    __mathlib_zero                           0x08004720   Data           8  qnan.o(.constdata)
-    Region$$Table$$Base                      0x08004728   Number         0  anon$$obj.o(Region$$Table)
-    Region$$Table$$Limit                     0x08004748   Number         0  anon$$obj.o(Region$$Table)
+    convertAngelToDACValue                   0x08003959   Thumb Code   164  main.o(i.convertAngelToDACValue)
+    convertCurrentXAngelToSignalPeriod       0x08003a05   Thumb Code   130  main.o(i.convertCurrentXAngelToSignalPeriod)
+    createStartAngleOfRotation               0x08003a8d   Thumb Code    32  main.o(i.createStartAngleOfRotation)
+    currentADCValueWithHandleType            0x08003aad   Thumb Code    60  main.o(i.currentADCValueWithHandleType)
+    currentVoltageWithHandleType             0x08003ae9   Thumb Code   124  main.o(i.currentVoltageWithHandleType)
+    disableTimerInterruptIfNeeded            0x08003b75   Thumb Code    28  main.o(i.disableTimerInterruptIfNeeded)
+    enableTimerInterruptIfNeeded             0x08003b99   Thumb Code    26  main.o(i.enableTimerInterruptIfNeeded)
+    fabs                                     0x08003bbd   Thumb Code    24  fabs.o(i.fabs)
+    joystickControl                          0x08003bd5   Thumb Code   220  main.o(i.joystickControl)
+    main                                     0x08003cc5   Thumb Code   124  main.o(i.main)
+    obtainAccelerationXAxis                  0x08003d49   Thumb Code    40  main.o(i.obtainAccelerationXAxis)
+    obtainAccelerationYAxis                  0x08003d75   Thumb Code    40  main.o(i.obtainAccelerationYAxis)
+    obtainAccelerationZAxis                  0x08003da1   Thumb Code    40  main.o(i.obtainAccelerationZAxis)
+    obtainCurrentAngleOfRotation             0x08003dcd   Thumb Code   120  main.o(i.obtainCurrentAngleOfRotation)
+    obtainCurrentAngleOfRotationWithStartAngle 0x08003e45   Thumb Code   130  main.o(i.obtainCurrentAngleOfRotationWithStartAngle)
+    obtainCurrentGyroscopeValue              0x08003ecd   Thumb Code    48  main.o(i.obtainCurrentGyroscopeValue)
+    obtainGyroscopeValueX                    0x08003efd   Thumb Code    40  main.o(i.obtainGyroscopeValueX)
+    obtainGyroscopeValueY                    0x08003f29   Thumb Code    40  main.o(i.obtainGyroscopeValueY)
+    obtainGyroscopeValueZ                    0x08003f55   Thumb Code    40  main.o(i.obtainGyroscopeValueZ)
+    prepareI2C                               0x08003f81   Thumb Code   536  main.o(i.prepareI2C)
+    readI2C                                  0x0800419d   Thumb Code   330  main.o(i.readI2C)
+    sensitivitySetting                       0x080042ed   Thumb Code   186  main.o(i.sensitivitySetting)
+    sensorControl                            0x080043b9   Thumb Code   140  main.o(i.sensorControl)
+    sidewaysDACWithDACValue                  0x08004451   Thumb Code    22  main.o(i.sidewaysDACWithDACValue)
+    sidewaysMotionDACWithCurrentAngel        0x0800446d   Thumb Code    24  main.o(i.sidewaysMotionDACWithCurrentAngel)
+    sidewaysMotionVoltageADC                 0x08004485   Thumb Code    64  main.o(i.sidewaysMotionVoltageADC)
+    signalsWithNumberOfSignals               0x080044c9   Thumb Code    40  main.o(i.signalsWithNumberOfSignals)
+    speakerWithSignalPeriod                  0x080044f5   Thumb Code    32  main.o(i.speakerWithSignalPeriod)
+    sqrt                                     0x08004519   Thumb Code   110  sqrt.o(i.sqrt)
+    startTimer                               0x08004589   Thumb Code    12  main.o(i.startTimer)
+    stopTimer                                0x08004599   Thumb Code    12  main.o(i.stopTimer)
+    straightDACWithDACValue                  0x080045a9   Thumb Code    20  main.o(i.straightDACWithDACValue)
+    straightMotionDACWithCurrentAngel        0x080045c1   Thumb Code    24  main.o(i.straightMotionDACWithCurrentAngel)
+    straightMotionVoltageADC                 0x080045d9   Thumb Code    64  main.o(i.straightMotionVoltageADC)
+    synchronousDelay                         0x0800461d   Thumb Code    14  main.o(i.synchronousDelay)
+    AHBPrescTable                            0x0800462a   Data          16  system_stm32f4xx.o(.constdata)
+    APBPrescTable                            0x0800463a   Data           8  system_stm32f4xx.o(.constdata)
+    __mathlib_zero                           0x08004768   Data           8  qnan.o(.constdata)
+    Region$$Table$$Base                      0x08004770   Number         0  anon$$obj.o(Region$$Table)
+    Region$$Table$$Limit                     0x08004790   Number         0  anon$$obj.o(Region$$Table)
     maximumAngleSensitivity                  0x20000000   Data           4  main.o(.data)
     controlFlag                              0x20000004   Data           4  main.o(.data)
     uwTickFreq                               0x20000008   Data           1  stm32f4xx_hal.o(.data)
@@ -1679,9 +1679,9 @@ Memory Map of the image
 
   Image Entry point : 0x08000189
 
-  Load Region LR_IROM1 (Base: 0x08000000, Size: 0x00004764, Max: 0x00100000, ABSOLUTE)
+  Load Region LR_IROM1 (Base: 0x08000000, Size: 0x000047ac, Max: 0x00100000, ABSOLUTE)
 
-    Execution Region ER_IROM1 (Exec base: 0x08000000, Load base: 0x08000000, Size: 0x00004748, Max: 0x00100000, ABSOLUTE)
+    Execution Region ER_IROM1 (Exec base: 0x08000000, Load base: 0x08000000, Size: 0x00004790, Max: 0x00100000, ABSOLUTE)
 
     Exec Addr    Load Addr    Size         Type   Attr      Idx    E Section Name        Object
 
@@ -1808,58 +1808,58 @@ Memory Map of the image
     0x08003820   0x08003820   0x0000000c   Code   RO         3447    i.__set_errno       mc_w.l(errno.o)
     0x0800382c   0x0800382c   0x0000011c   Code   RO           24    i.angleFromProjections  main.o
     0x08003948   0x08003948   0x00000010   Code   RO         3388    i.atan              m_wm.l(atan.o)
-    0x08003958   0x08003958   0x00000068   Code   RO           25    i.convertAngelToDACValue  main.o
-    0x080039c0   0x080039c0   0x00000088   Code   RO           26    i.convertCurrentXAngelToSignalPeriod  main.o
-    0x08003a48   0x08003a48   0x00000020   Code   RO           27    i.createStartAngleOfRotation  main.o
-    0x08003a68   0x08003a68   0x0000003c   Code   RO           28    i.currentADCValueWithHandleType  main.o
-    0x08003aa4   0x08003aa4   0x0000008c   Code   RO           29    i.currentVoltageWithHandleType  main.o
-    0x08003b30   0x08003b30   0x00000024   Code   RO           30    i.disableTimerInterruptIfNeeded  main.o
-    0x08003b54   0x08003b54   0x00000024   Code   RO           31    i.enableTimerInterruptIfNeeded  main.o
-    0x08003b78   0x08003b78   0x00000018   Code   RO         3416    i.fabs              m_wm.l(fabs.o)
-    0x08003b90   0x08003b90   0x000000f0   Code   RO           32    i.joystickControl   main.o
-    0x08003c80   0x08003c80   0x00000084   Code   RO           33    i.main              main.o
-    0x08003d04   0x08003d04   0x0000002c   Code   RO           34    i.obtainAccelerationXAxis  main.o
-    0x08003d30   0x08003d30   0x0000002c   Code   RO           35    i.obtainAccelerationYAxis  main.o
-    0x08003d5c   0x08003d5c   0x0000002c   Code   RO           36    i.obtainAccelerationZAxis  main.o
-    0x08003d88   0x08003d88   0x00000078   Code   RO           37    i.obtainCurrentAngleOfRotation  main.o
-    0x08003e00   0x08003e00   0x00000088   Code   RO           38    i.obtainCurrentAngleOfRotationWithStartAngle  main.o
-    0x08003e88   0x08003e88   0x00000030   Code   RO           39    i.obtainCurrentGyroscopeValue  main.o
-    0x08003eb8   0x08003eb8   0x0000002c   Code   RO           40    i.obtainGyroscopeValueX  main.o
-    0x08003ee4   0x08003ee4   0x0000002c   Code   RO           41    i.obtainGyroscopeValueY  main.o
-    0x08003f10   0x08003f10   0x0000002c   Code   RO           42    i.obtainGyroscopeValueZ  main.o
-    0x08003f3c   0x08003f3c   0x0000021c   Code   RO           43    i.prepareI2C        main.o
-    0x08004158   0x08004158   0x00000150   Code   RO           44    i.readI2C           main.o
-    0x080042a8   0x080042a8   0x000000cc   Code   RO           45    i.sensitivitySetting  main.o
-    0x08004374   0x08004374   0x00000098   Code   RO           46    i.sensorControl     main.o
-    0x0800440c   0x0800440c   0x0000001c   Code   RO           47    i.sidewaysDACWithDACValue  main.o
-    0x08004428   0x08004428   0x00000018   Code   RO           48    i.sidewaysMotionDACWithCurrentAngel  main.o
-    0x08004440   0x08004440   0x00000044   Code   RO           49    i.sidewaysMotionVoltageADC  main.o
-    0x08004484   0x08004484   0x0000002c   Code   RO           50    i.signalsWithNumberOfSignals  main.o
-    0x080044b0   0x080044b0   0x00000024   Code   RO           51    i.speakerWithSignalPeriod  main.o
-    0x080044d4   0x080044d4   0x0000006e   Code   RO         3353    i.sqrt              m_wm.l(sqrt.o)
-    0x08004542   0x08004542   0x00000002   PAD
-    0x08004544   0x08004544   0x00000010   Code   RO           52    i.startTimer        main.o
-    0x08004554   0x08004554   0x00000010   Code   RO           53    i.stopTimer         main.o
-    0x08004564   0x08004564   0x00000018   Code   RO           54    i.straightDACWithDACValue  main.o
-    0x0800457c   0x0800457c   0x00000018   Code   RO           55    i.straightMotionDACWithCurrentAngel  main.o
-    0x08004594   0x08004594   0x00000044   Code   RO           56    i.straightMotionVoltageADC  main.o
-    0x080045d8   0x080045d8   0x0000000e   Code   RO           57    i.synchronousDelay  main.o
-    0x080045e6   0x080045e6   0x00000018   Data   RO         3293    .constdata          system_stm32f4xx.o
-    0x080045fe   0x080045fe   0x00000002   PAD
-    0x08004600   0x08004600   0x00000088   Data   RO         3340    .constdata          m_wm.l(pow.o)
-    0x08004688   0x08004688   0x00000098   Data   RO         3389    .constdata          m_wm.l(atan.o)
-    0x08004720   0x08004720   0x00000008   Data   RO         3424    .constdata          m_wm.l(qnan.o)
-    0x08004728   0x08004728   0x00000020   Data   RO         3467    Region$$Table       anon$$obj.o
+    0x08003958   0x08003958   0x000000ac   Code   RO           25    i.convertAngelToDACValue  main.o
+    0x08003a04   0x08003a04   0x00000088   Code   RO           26    i.convertCurrentXAngelToSignalPeriod  main.o
+    0x08003a8c   0x08003a8c   0x00000020   Code   RO           27    i.createStartAngleOfRotation  main.o
+    0x08003aac   0x08003aac   0x0000003c   Code   RO           28    i.currentADCValueWithHandleType  main.o
+    0x08003ae8   0x08003ae8   0x0000008c   Code   RO           29    i.currentVoltageWithHandleType  main.o
+    0x08003b74   0x08003b74   0x00000024   Code   RO           30    i.disableTimerInterruptIfNeeded  main.o
+    0x08003b98   0x08003b98   0x00000024   Code   RO           31    i.enableTimerInterruptIfNeeded  main.o
+    0x08003bbc   0x08003bbc   0x00000018   Code   RO         3416    i.fabs              m_wm.l(fabs.o)
+    0x08003bd4   0x08003bd4   0x000000f0   Code   RO           32    i.joystickControl   main.o
+    0x08003cc4   0x08003cc4   0x00000084   Code   RO           33    i.main              main.o
+    0x08003d48   0x08003d48   0x0000002c   Code   RO           34    i.obtainAccelerationXAxis  main.o
+    0x08003d74   0x08003d74   0x0000002c   Code   RO           35    i.obtainAccelerationYAxis  main.o
+    0x08003da0   0x08003da0   0x0000002c   Code   RO           36    i.obtainAccelerationZAxis  main.o
+    0x08003dcc   0x08003dcc   0x00000078   Code   RO           37    i.obtainCurrentAngleOfRotation  main.o
+    0x08003e44   0x08003e44   0x00000088   Code   RO           38    i.obtainCurrentAngleOfRotationWithStartAngle  main.o
+    0x08003ecc   0x08003ecc   0x00000030   Code   RO           39    i.obtainCurrentGyroscopeValue  main.o
+    0x08003efc   0x08003efc   0x0000002c   Code   RO           40    i.obtainGyroscopeValueX  main.o
+    0x08003f28   0x08003f28   0x0000002c   Code   RO           41    i.obtainGyroscopeValueY  main.o
+    0x08003f54   0x08003f54   0x0000002c   Code   RO           42    i.obtainGyroscopeValueZ  main.o
+    0x08003f80   0x08003f80   0x0000021c   Code   RO           43    i.prepareI2C        main.o
+    0x0800419c   0x0800419c   0x00000150   Code   RO           44    i.readI2C           main.o
+    0x080042ec   0x080042ec   0x000000cc   Code   RO           45    i.sensitivitySetting  main.o
+    0x080043b8   0x080043b8   0x00000098   Code   RO           46    i.sensorControl     main.o
+    0x08004450   0x08004450   0x0000001c   Code   RO           47    i.sidewaysDACWithDACValue  main.o
+    0x0800446c   0x0800446c   0x00000018   Code   RO           48    i.sidewaysMotionDACWithCurrentAngel  main.o
+    0x08004484   0x08004484   0x00000044   Code   RO           49    i.sidewaysMotionVoltageADC  main.o
+    0x080044c8   0x080044c8   0x0000002c   Code   RO           50    i.signalsWithNumberOfSignals  main.o
+    0x080044f4   0x080044f4   0x00000024   Code   RO           51    i.speakerWithSignalPeriod  main.o
+    0x08004518   0x08004518   0x0000006e   Code   RO         3353    i.sqrt              m_wm.l(sqrt.o)
+    0x08004586   0x08004586   0x00000002   PAD
+    0x08004588   0x08004588   0x00000010   Code   RO           52    i.startTimer        main.o
+    0x08004598   0x08004598   0x00000010   Code   RO           53    i.stopTimer         main.o
+    0x080045a8   0x080045a8   0x00000018   Code   RO           54    i.straightDACWithDACValue  main.o
+    0x080045c0   0x080045c0   0x00000018   Code   RO           55    i.straightMotionDACWithCurrentAngel  main.o
+    0x080045d8   0x080045d8   0x00000044   Code   RO           56    i.straightMotionVoltageADC  main.o
+    0x0800461c   0x0800461c   0x0000000e   Code   RO           57    i.synchronousDelay  main.o
+    0x0800462a   0x0800462a   0x00000018   Data   RO         3293    .constdata          system_stm32f4xx.o
+    0x08004642   0x08004642   0x00000006   PAD
+    0x08004648   0x08004648   0x00000088   Data   RO         3340    .constdata          m_wm.l(pow.o)
+    0x080046d0   0x080046d0   0x00000098   Data   RO         3389    .constdata          m_wm.l(atan.o)
+    0x08004768   0x08004768   0x00000008   Data   RO         3424    .constdata          m_wm.l(qnan.o)
+    0x08004770   0x08004770   0x00000020   Data   RO         3467    Region$$Table       anon$$obj.o
 
 
-    Execution Region RW_IRAM1 (Exec base: 0x20000000, Load base: 0x08004748, Size: 0x00000598, Max: 0x00020000, ABSOLUTE)
+    Execution Region RW_IRAM1 (Exec base: 0x20000000, Load base: 0x08004790, Size: 0x00000598, Max: 0x00020000, ABSOLUTE)
 
     Exec Addr    Load Addr    Size         Type   Attr      Idx    E Section Name        Object
 
-    0x20000000   0x08004748   0x00000008   Data   RW           59    .data               main.o
-    0x20000008   0x08004750   0x0000000c   Data   RW         3145    .data               stm32f4xx_hal.o
-    0x20000014   0x0800475c   0x00000004   Data   RW         3294    .data               system_stm32f4xx.o
-    0x20000018   0x08004760   0x00000004   Data   RW         3448    .data               mc_w.l(errno.o)
+    0x20000000   0x08004790   0x00000008   Data   RW           59    .data               main.o
+    0x20000008   0x08004798   0x0000000c   Data   RW         3145    .data               stm32f4xx_hal.o
+    0x20000014   0x080047a4   0x00000004   Data   RW         3294    .data               system_stm32f4xx.o
+    0x20000018   0x080047a8   0x00000004   Data   RW         3448    .data               mc_w.l(errno.o)
     0x2000001c        -       0x0000017c   Zero   RW           58    .bss                main.o
     0x20000198        -       0x00000400   Zero   RW            1    STACK               startup_stm32f407xx.o
 
@@ -1871,7 +1871,7 @@ Image component sizes
 
       Code (inc. data)   RO Data    RW Data    ZI Data      Debug   Object Name
 
-      4318        330          0          8        380     748913   main.o
+      4386        326          0          8        380     749001   main.o
         36          8        392          0       1024        836   startup_stm32f407xx.o
        144         24          0         12          0       3941   stm32f4xx_hal.o
       1328         40          0          0          0       5933   stm32f4xx_hal_adc.o
@@ -1887,9 +1887,9 @@ Image component sizes
        100         18         24          4          0       1155   system_stm32f4xx.o
 
     ----------------------------------------------------------------------
-     10520        636        450         24       1404     826410   Object Totals
+     10588        632        454         24       1404     826498   Object Totals
          0          0         32          0          0          0   (incl. Generated)
-        12          0          2          0          0          0   (incl. Padding)
+        12          0          6          0          0          0   (incl. Padding)
 
     ----------------------------------------------------------------------
 
@@ -1956,15 +1956,15 @@ Image component sizes
 
       Code (inc. data)   RO Data    RW Data    ZI Data      Debug   
 
-     17502       1168        746         28       1404     819654   Grand Totals
-     17502       1168        746         28       1404     819654   ELF Image Totals
-     17502       1168        746         28          0          0   ROM Totals
+     17570       1164        750         28       1404     819742   Grand Totals
+     17570       1164        750         28       1404     819742   ELF Image Totals
+     17570       1164        750         28          0          0   ROM Totals
 
 ==============================================================================
 
-    Total RO  Size (Code + RO Data)                18248 (  17.82kB)
+    Total RO  Size (Code + RO Data)                18320 (  17.89kB)
     Total RW  Size (RW Data + ZI Data)              1432 (   1.40kB)
-    Total ROM Size (Code + RO Data + RW Data)      18276 (  17.85kB)
+    Total ROM Size (Code + RO Data + RW Data)      18348 (  17.92kB)
 
 ==============================================================================
 
