@@ -40,7 +40,6 @@
 #pragma push
 #pragma O0
 
-
 #include "main.h"
 #include "stm32f4xx_hal.h"
 #include "math.h"
@@ -60,6 +59,7 @@ Controls
 #define SCS_Sensor_isEnable	0x1
 #define SCS_Joystick_isEnable	0x2
 #define SCS_Settings_isEnable	0x3
+#define SCS_DisableAll	0x4
 
 /*
 Sensitivity
@@ -89,8 +89,9 @@ DAC_HandleTypeDef hdac;
 
 I2C_HandleTypeDef hi2c1;
 
-TIM_HandleTypeDef htim1;
-TIM_HandleTypeDef htim2;
+static TIM_HandleTypeDef htim1 = {TIM1};
+static TIM_HandleTypeDef htim2 = {TIM2};
+static TIM_HandleTypeDef htim3 = {TIM3};
 
 struct GyroscopeValueXYZ
 {
@@ -115,16 +116,20 @@ static void MX_DAC_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_TIM1_Init(void);
 static void MX_TIM2_Init(void);
+static void MX_TIM3_Init(void);
 void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
 
+
 /*
-	Запретить прерывание, если оно разрешено
+	Запретить прерывание, если оно разрешено для таймера
+	@param htim необходимый таймер
 */
-void disableTimerInterruptIfNeeded();
+void disableTimerInterruptIfNeeded(TIM_HandleTypeDef htim);
 /*
-	Разрешить прерывание, если оно запрещено 
+	Разрешить прерывание, если оно запрещено для таймера
+	@param htim необходимый таймер
 */
-void enableTimerInterruptIfNeeded();
+void enableTimerInterruptIfNeeded(TIM_HandleTypeDef htim);
 /*
 	Запустить таймер
 */
@@ -190,6 +195,12 @@ float obtainAccelerationYAxis();
 float obtainAccelerationZAxis();
 
 
+/*
+	Отслеижвание выхода текущего значения угла за допустимые границы
+	@param currentAngel_X текущее значение угла
+	@param currentAngel_Y текущее значение угла	
+*/
+void emergencyTrackingWithCurrentAngels(float currentAngel_X, float currentAngel_Z);
 /*
 	Передача сигнала через ЦАП для движения в сторону
 	@param dacValue значение для вывода
@@ -299,10 +310,17 @@ void sensorControl();
 void sensitivitySetting();
 
 
-struct AngleOfRotationXYZAxis xyzStartAngles = {0,0,0};
+struct AngleOfRotationXYZAxis xyzStartAngles = {sizeof(float),
+																								sizeof(float),
+																								sizeof(float)};
+
 int maximumAngleSensitivity = SCS_MaximumAngleSensitivity_Normal;
 int controlFlag = SCS_Sensor_isEnable;
 
+void TIM3_IRQHandler()
+{
+	HAL_TIM_IRQHandler(&htim3);
+}
 
 void TIM2_IRQHandler() 
 {
@@ -311,22 +329,28 @@ void TIM2_IRQHandler()
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
-	float left = straightMotionVoltageADC();
-	float right = sidewaysMotionVoltageADC();
-	if (V_VCC / 2 - SCS_ADCVoltageDelta > straightMotionVoltageADC()
-			|| V_VCC / 2 + SCS_ADCVoltageDelta < straightMotionVoltageADC()
-			|| V_VCC / 2 - SCS_ADCVoltageDelta > sidewaysMotionVoltageADC()
-			|| V_VCC / 2 + SCS_ADCVoltageDelta < sidewaysMotionVoltageADC())
+	if (TIM3 == htim->Instance && 0x1 == htim->Instance->CR1)
 	{
-		controlFlag = SCS_Joystick_isEnable;
-		
-		synchronousDelay();
-		signalsWithNumberOfSignals(1);
-		
-		disableTimerInterruptIfNeeded();
+		controlFlag = SCS_DisableAll;
+		disableTimerInterruptIfNeeded(htim3);
+	}
+	else if (TIM2 == htim->Instance)
+	{
+		// TODO: Переписать условие через сумму
+		float left = straightMotionVoltageADC();
+		float right = sidewaysMotionVoltageADC();
+		if (V_VCC / 2 - SCS_ADCVoltageDelta > straightMotionVoltageADC()
+				|| V_VCC / 2 + SCS_ADCVoltageDelta < straightMotionVoltageADC()
+				|| V_VCC / 2 - SCS_ADCVoltageDelta > sidewaysMotionVoltageADC()
+				|| V_VCC / 2 + SCS_ADCVoltageDelta < sidewaysMotionVoltageADC())
+		{
+			controlFlag = SCS_Joystick_isEnable;
+			synchronousDelay();
+			signalsWithNumberOfSignals(1);
+			disableTimerInterruptIfNeeded(htim2);
+		}
 	}
 }
-
 
 int main(void)
 {
@@ -340,29 +364,31 @@ int main(void)
 	MX_I2C1_Init();
 	MX_TIM1_Init();
 	MX_TIM2_Init();
+//	MX_TIM3_Init();
 
 	prepareI2C();
-	
-	struct AngleOfRotationXYZAxis xyzCurrentAnglesWithStartAngles = {0,0,0};
-	struct GyroscopeValueXYZ xyzCurrentGValue = {0,0,0};
 	xyzStartAngles = createStartAngleOfRotation();
-	
-	
 	while (1)
   {
 		if (SCS_Joystick_isEnable == controlFlag)
 		{
 			synchronousDelay();
 			signalsWithNumberOfSignals(2);
-			
 			joystickControl();
 		}
-		else if (SCS_Sensor_isEnable == controlFlag)
+		if (SCS_Sensor_isEnable == controlFlag)
 		{
 			synchronousDelay();
 			signalsWithNumberOfSignals(3);
-			
 			sensorControl();
+		}
+		if (SCS_DisableAll == controlFlag)
+		{
+			straightMotionDACWithCurrentAngel(xyzStartAngles.xAngle);
+			sidewaysMotionDACWithCurrentAngel(xyzStartAngles.zAngle);
+			startTimer();
+			speakerWithSignalPeriod(0x5FF);
+			while (SCS_DisableAll == controlFlag);
 		}
   }
 }
@@ -380,24 +406,35 @@ void joystickControl()
 	}
 }
 
-void disableTimerInterruptIfNeeded()
+void disableTimerInterruptIfNeeded(TIM_HandleTypeDef htim)
 {
-	if (0x1 == htim2.Instance->DIER && SCS_Joystick_isEnable == controlFlag)
+	if (((TIM2 == htim.Instance && SCS_Joystick_isEnable == controlFlag)
+				|| TIM3 == htim.Instance) && 0x1 == htim.Instance->DIER)
 	{
-		HAL_TIM_Base_Stop_IT(&htim2);
+		HAL_TIM_Base_Stop_IT(&htim);
+		if (TIM3 == htim.Instance)
+		{
+			htim.Instance->CNT = 0;
+		}
 	}
 }
 
-void enableTimerInterruptIfNeeded()
+void enableTimerInterruptIfNeeded(TIM_HandleTypeDef htim)
 {
-	if (0x0 == htim2.Instance->DIER && SCS_Sensor_isEnable == controlFlag)
+	if (((TIM2 == htim.Instance && SCS_Sensor_isEnable == controlFlag)
+				|| TIM3 == htim.Instance)&& 0x0 == htim.Instance->DIER)
 	{
-		HAL_TIM_Base_Start_IT(&htim2);
+		HAL_TIM_Base_Start_IT(&htim);
+		if (TIM3 == htim.Instance)
+		{
+			HAL_NVIC_ClearPendingIRQ(TIM3_IRQn);
+		}
 	}
 }
 
 void sensorControl()
 {
+	struct AngleOfRotationXYZAxis xyzCurrentAnglesWithStartAngles = {0,0,0};
 	while(SCS_Sensor_isEnable == controlFlag)
 	{		
 		if (obtainCurrentGyroscopeValue().yGValue > SCS_AccelerometerLimit)
@@ -408,10 +445,11 @@ void sensorControl()
 			controlFlag = SCS_Settings_isEnable;
 			sensitivitySetting();
 		}
-		struct AngleOfRotationXYZAxis xyzCurrentAnglesWithStartAngles = obtainCurrentAngleOfRotationWithStartAngle();
+		xyzCurrentAnglesWithStartAngles = obtainCurrentAngleOfRotationWithStartAngle();
+		emergencyTrackingWithCurrentAngels(xyzCurrentAnglesWithStartAngles.xAngle, xyzCurrentAnglesWithStartAngles.zAngle);
 		straightMotionDACWithCurrentAngel(xyzCurrentAnglesWithStartAngles.xAngle);
 		sidewaysMotionDACWithCurrentAngel(xyzCurrentAnglesWithStartAngles.zAngle);
-		enableTimerInterruptIfNeeded();
+		enableTimerInterruptIfNeeded(htim2);
 	}
 }
 
@@ -494,11 +532,27 @@ void sidewaysDACWithDACValue(int dacValue)
 	DAC->SWTRIGR|=2;
 }
 
+void emergencyTrackingWithCurrentAngels(float currentAngel_X, float currentAngel_Z)
+{
+	float maximumCurrentAngel = fmax(fabsf(currentAngel_X), fabsf(currentAngel_Z));
+	if (maximumCurrentAngel > maximumAngleSensitivity * 1.25)
+	{
+		signalsWithNumberOfSignals(1);
+		enableTimerInterruptIfNeeded(htim3);
+	}
+	else
+	{
+		disableTimerInterruptIfNeeded(htim3);
+	}
+}
+
 int convertAngelToDACValue(float currentAngel)
 {	
+	int fullScale = 0xFFF;
+//	return fullScale / 2;
 	if (currentAngel > maximumAngleSensitivity)
 	{
-		return 0xFFF;
+		return fullScale;
 	}
 	else if (currentAngel < - maximumAngleSensitivity)
 	{
@@ -507,7 +561,7 @@ int convertAngelToDACValue(float currentAngel)
 	else if (currentAngel < SCS_SaveAngleSensitivity 
 						&& currentAngel > - SCS_SaveAngleSensitivity)
 	{
-		return 0xFFF / 2;
+		return fullScale / 2;
 	}
 	
 	int saveAngle = 0;
@@ -519,7 +573,7 @@ int convertAngelToDACValue(float currentAngel)
 	{
 		saveAngle = - SCS_SaveAngleSensitivity;
 	}
-	return 0xFFF / 2 * (1 + ((currentAngel - saveAngle) / (maximumAngleSensitivity - SCS_SaveAngleSensitivity)));
+	return fullScale / 2 * (1 + ((currentAngel - saveAngle) / (maximumAngleSensitivity - SCS_SaveAngleSensitivity)));
 }
 
 float convertCurrentXAngelToSignalPeriod(float currentXAngel)
@@ -776,24 +830,13 @@ void prepareI2C()
 
 #pragma pop
 
-/**
-  * @brief System Clock Configuration
-  * @retval None
-  */
+/* Конфигурация тактирования */
 void SystemClock_Config(void)
 {
-
   RCC_OscInitTypeDef RCC_OscInitStruct;
   RCC_ClkInitTypeDef RCC_ClkInitStruct;
-
-    /**Configure the main internal regulator output voltage 
-    */
   __HAL_RCC_PWR_CLK_ENABLE();
-
   __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
-
-    /**Initializes the CPU, AHB and APB busses clocks 
-    */
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
@@ -806,41 +849,25 @@ void SystemClock_Config(void)
   {
     _Error_Handler(__FILE__, __LINE__);
   }
-
-    /**Initializes the CPU, AHB and APB busses clocks 
-    */
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
-
   if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_5) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
   }
-
-    /**Configure the Systick interrupt time 
-    */
   HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/1000);
-
-    /**Configure the Systick 
-    */
   HAL_SYSTICK_CLKSourceConfig(SYSTICK_CLKSOURCE_HCLK);
-
-  /* SysTick_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
 }
 
-/* ADC1 init function */
+/* Конфигурация ADC1 */
 static void MX_ADC1_Init(void)
 {
-
   ADC_ChannelConfTypeDef sConfig;
-
-    /**Configure the global features of the ADC (Clock, Resolution, Data Alignment and number of conversion) 
-    */
   hadc1.Instance = ADC1;
   hadc1.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV6;
   hadc1.Init.Resolution = ADC_RESOLUTION_12B;
@@ -857,9 +884,6 @@ static void MX_ADC1_Init(void)
   {
     _Error_Handler(__FILE__, __LINE__);
   }
-
-    /**Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time. 
-    */
   sConfig.Channel = ADC_CHANNEL_0;
   sConfig.Rank = 1;
   sConfig.SamplingTime = ADC_SAMPLETIME_3CYCLES;
@@ -867,17 +891,12 @@ static void MX_ADC1_Init(void)
   {
     _Error_Handler(__FILE__, __LINE__);
   }
-
 }
 
-/* ADC2 init function */
+/* Конфигурация ADC2 */
 static void MX_ADC2_Init(void)
 {
-
   ADC_ChannelConfTypeDef sConfig;
-
-    /**Configure the global features of the ADC (Clock, Resolution, Data Alignment and number of conversion) 
-    */
   hadc2.Instance = ADC2;
   hadc2.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV6;
   hadc2.Init.Resolution = ADC_RESOLUTION_12B;
@@ -894,9 +913,6 @@ static void MX_ADC2_Init(void)
   {
     _Error_Handler(__FILE__, __LINE__);
   }
-
-    /**Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time. 
-    */
   sConfig.Channel = ADC_CHANNEL_1;
   sConfig.Rank = 1;
   sConfig.SamplingTime = ADC_SAMPLETIME_3CYCLES;
@@ -904,34 +920,23 @@ static void MX_ADC2_Init(void)
   {
     _Error_Handler(__FILE__, __LINE__);
   }
-
 }
 
-/* DAC init function */
+/* Конфигурация DAC */
 static void MX_DAC_Init(void)
 {
-
   DAC_ChannelConfTypeDef sConfig;
-
-    /**DAC Initialization 
-    */
   hdac.Instance = DAC;
   if (HAL_DAC_Init(&hdac) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
   }
-
-    /**DAC channel OUT1 config 
-    */
   sConfig.DAC_Trigger = DAC_TRIGGER_NONE;
   sConfig.DAC_OutputBuffer = DAC_OUTPUTBUFFER_ENABLE;
   if (HAL_DAC_ConfigChannel(&hdac, &sConfig, DAC_CHANNEL_1) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
   }
-
-    /**DAC channel OUT2 config 
-    */
   if (HAL_DAC_ConfigChannel(&hdac, &sConfig, DAC_CHANNEL_2) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
@@ -939,10 +944,9 @@ static void MX_DAC_Init(void)
 	DAC->CR|=(1|1<<2|(7<<3)|5<<16|7<<19);
 }
 
-/* I2C1 init function */
+/* Конфигурация I2C1 */
 static void MX_I2C1_Init(void)
 {
-
   hi2c1.Instance = I2C1;
   hi2c1.Init.ClockSpeed = 100000;
   hi2c1.Init.DutyCycle = I2C_DUTYCYCLE_2;
@@ -956,23 +960,18 @@ static void MX_I2C1_Init(void)
   {
     _Error_Handler(__FILE__, __LINE__);
   }
-
 }
 
-/* TIM1 init function */
+/* Конфигурация TIM1 */
 static void MX_TIM1_Init(void)
 {
 	__HAL_RCC_TIM1_CLK_ENABLE();
-
 	HAL_TIM_PWM_MspInit(&htim1);
-
-	htim1.Instance = TIM1;
 	htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
 	htim1.Init.Prescaler = 0xF;
 	htim1.Init.Period = 0x2FFF;
 	htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
 	HAL_TIM_PWM_Init(&htim1);
-
 	TIM_OC_InitTypeDef pwm;
 	pwm.OCMode = TIM_OCMODE_PWM2;
 	pwm.Pulse = 0;
@@ -981,23 +980,35 @@ static void MX_TIM1_Init(void)
 	HAL_TIM_PWM_ConfigChannel(&htim1, &pwm, TIM_CHANNEL_1);
 }
 
-/* TIM2 init function */
+/* Конфигурация TIM2 */
 static void MX_TIM2_Init(void)
 {
 	__HAL_RCC_TIM2_CLK_ENABLE();
-
-	htim2.Instance = TIM2;
 	htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
-	htim2.Init.Prescaler = 500;
+	htim2.Init.Prescaler = 250;
 	htim2.Init.Period = 0xFFFF;
 	htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
 	HAL_TIM_Base_Init(&htim2);
-	HAL_NVIC_SetPriorityGrouping( NVIC_PRIORITYGROUP_0 );
-  HAL_NVIC_SetPriority( TIM2_IRQn, 0, 0 );
+	HAL_NVIC_SetPriorityGrouping(NVIC_PRIORITYGROUP_0);
+  HAL_NVIC_SetPriority(TIM2_IRQn, 0, 0);
 	NVIC_EnableIRQ(TIM2_IRQn);
 }
 
-/* Configure pins */
+/* Конфигурация TIM3 */
+static void MX_TIM3_Init(void)
+{
+	__HAL_RCC_TIM3_CLK_ENABLE();
+	htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
+	htim3.Init.Prescaler = 0x4FF;
+	htim3.Init.Period = 0xFFFF;
+	htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+	HAL_TIM_Base_Init(&htim3);
+	HAL_NVIC_SetPriorityGrouping(NVIC_PRIORITYGROUP_0);
+  HAL_NVIC_SetPriority(TIM3_IRQn, 0, 0);
+	NVIC_EnableIRQ(TIM3_IRQn);
+}
+
+/* Конфигурация пинов */
 static void MX_GPIO_Init(void)
 {
 	GPIO_InitTypeDef GPIO_InitStruct;
@@ -1005,55 +1016,20 @@ static void MX_GPIO_Init(void)
 	__HAL_RCC_GPIOA_CLK_ENABLE();
 	__HAL_RCC_GPIOE_CLK_ENABLE();
 	__HAL_RCC_GPIOB_CLK_ENABLE();
-
 	GPIO_InitStruct.Pin = GPIO_PIN_9;
 	GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
 	GPIO_InitStruct.Pull = GPIO_PULLDOWN;
 	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
 	GPIO_InitStruct.Alternate = GPIO_AF1_TIM1;
-
 	HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 }
 
-/**
-  * @brief  This function is executed in case of error occurrence.
-  * @param  file: The file name as string.
-  * @param  line: The line in file as a number.
-  * @retval None
-  */
 void _Error_Handler(char *file, int line)
 {
-  /* USER CODE BEGIN Error_Handler_Debug */
-  /* User can add his own implementation to report the HAL error return state */
   while(1)
   {
+		
   }
-  /* USER CODE END Error_Handler_Debug */
 }
-
-#ifdef  USE_FULL_ASSERT
-/**
-  * @brief  Reports the name of the source file and the source line number
-  *         where the assert_param error has occurred.
-  * @param  file: pointer to the source file name
-  * @param  line: assert_param error line source number
-  * @retval None
-  */
-void assert_failed(uint8_t* file, uint32_t line)
-{ 
-  /* USER CODE BEGIN 6 */
-  /* User can add his own implementation to report the file name and line number,
-     tex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
-  /* USER CODE END 6 */
-}
-#endif /* USE_FULL_ASSERT */
-
-/**
-  * @}
-  */
-
-/**
-  * @}
-  */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

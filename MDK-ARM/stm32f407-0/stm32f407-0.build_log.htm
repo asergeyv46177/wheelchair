@@ -27,71 +27,7 @@ Project File Date:  10/30/2018
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 5 (build 528)', folder: 'C:\Keil_v5\ARM\ARMCC\Bin'
 Build target 'stm32f407-0'
-compiling main.c...
-../Src/main.c(123): warning:  #1295-D: Deprecated declaration disableTimerInterruptIfNeeded - give arg types
-  void disableTimerInterruptIfNeeded();
-../Src/main.c(127): warning:  #1295-D: Deprecated declaration enableTimerInterruptIfNeeded - give arg types
-  void enableTimerInterruptIfNeeded();
-../Src/main.c(131): warning:  #1295-D: Deprecated declaration startTimer - give arg types
-  void startTimer();
-../Src/main.c(135): warning:  #1295-D: Deprecated declaration stopTimer - give arg types
-  void stopTimer();
-../Src/main.c(144): warning:  #1295-D: Deprecated declaration synchronousDelay - give arg types
-  void synchronousDelay();
-../Src/main.c(150): warning:  #1295-D: Deprecated declaration prepareI2C - give arg types
-  void prepareI2C();
-../Src/main.c(163): warning:  #1295-D: Deprecated declaration obtainGyroscopeValueX - give arg types
-  float obtainGyroscopeValueX();
-../Src/main.c(168): warning:  #1295-D: Deprecated declaration obtainGyroscopeValueY - give arg types
-  float obtainGyroscopeValueY();
-../Src/main.c(173): warning:  #1295-D: Deprecated declaration obtainGyroscopeValueZ - give arg types
-  float obtainGyroscopeValueZ();
-../Src/main.c(180): warning:  #1295-D: Deprecated declaration obtainAccelerationXAxis - give arg types
-  float obtainAccelerationXAxis();
-../Src/main.c(185): warning:  #1295-D: Deprecated declaration obtainAccelerationYAxis - give arg types
-  float obtainAccelerationYAxis();
-../Src/main.c(190): warning:  #1295-D: Deprecated declaration obtainAccelerationZAxis - give arg types
-  float obtainAccelerationZAxis();
-../Src/main.c(260): warning:  #1295-D: Deprecated declaration obtainCurrentAngleOfRotation - give arg types
-  struct AngleOfRotationXYZAxis obtainCurrentAngleOfRotation();
-../Src/main.c(265): warning:  #1295-D: Deprecated declaration createStartAngleOfRotation - give arg types
-  struct AngleOfRotationXYZAxis createStartAngleOfRotation();
-../Src/main.c(270): warning:  #1295-D: Deprecated declaration obtainCurrentAngleOfRotationWithStartAngle - give arg types
-  struct AngleOfRotationXYZAxis obtainCurrentAngleOfRotationWithStartAngle();
-../Src/main.c(275): warning:  #1295-D: Deprecated declaration obtainCurrentGyroscopeValue - give arg types
-  struct GyroscopeValueXYZ obtainCurrentGyroscopeValue();
-../Src/main.c(280): warning:  #1295-D: Deprecated declaration straightMotionVoltageADC - give arg types
-  float straightMotionVoltageADC();
-../Src/main.c(285): warning:  #1295-D: Deprecated declaration sidewaysMotionVoltageADC - give arg types
-  float sidewaysMotionVoltageADC();
-../Src/main.c(291): warning:  #1295-D: Deprecated declaration joystickControl - give arg types
-  void joystickControl();
-../Src/main.c(295): warning:  #1295-D: Deprecated declaration sensorControl - give arg types
-  void sensorControl();
-../Src/main.c(299): warning:  #1295-D: Deprecated declaration sensitivitySetting - give arg types
-  void sensitivitySetting();
-../Src/main.c(346): warning:  #177-D: variable "xyzCurrentAnglesWithStartAngles"  was declared but never referenced
-  	struct AngleOfRotationXYZAxis xyzCurrentAnglesWithStartAngles = {0,0,0};
-../Src/main.c(347): warning:  #177-D: variable "xyzCurrentGValue"  was declared but never referenced
-  	struct GyroscopeValueXYZ xyzCurrentGValue = {0,0,0};
-../Src/main.c(374): warning:  #1035-D: single-precision operand implicitly converted to double-precision
-  		if (obtainCurrentGyroscopeValue().yGValue > 
-CS_AccelerometerLimit)
-../Src/main.c(403): warning:  #1035-D: single-precision operand implicitly converted to double-precision
-  		if (obtainCurrentGyroscopeValue().yGValue > 
-CS_AccelerometerLimit)
-../Src/main.c(438): warning:  #1035-D: single-precision operand implicitly converted to double-precision
-  		if (obtainCurrentGyroscopeValue().yGValue > 
-CS_AccelerometerLimit)
-../Src/main.c(461): warning:  #1035-D: single-precision operand implicitly converted to double-precision
-  	return (currentADCValue) * 3.3 / 4096;
-../Src/main.c(621): warning:  #161-D: unrecognized #pragma
-  #pragma mark - Work with sensor 
-../Src/main.c: 28 warnings, 0 errors
-linking...
-Program Size: Code=17570 RO-data=750 RW-data=28 ZI-data=1404  
-FromELF: creating hex file...
-"stm32f407-0\stm32f407-0.axf" - 0 Error(s), 28 Warning(s).
+"stm32f407-0\stm32f407-0.axf" - 0 Error(s), 0 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -114,7 +50,7 @@ Package Vendor: Keil
 <h2>Collection of Component Files used:</h2>
 
    * Component: ARM::CMSIS:CORE:5.0.1
-Build Time Elapsed:  00:00:04
+Build Time Elapsed:  00:00:01
 </pre>
 </body>
 </html>
