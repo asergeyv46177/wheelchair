@@ -36,9 +36,8 @@
   *
   ******************************************************************************
   */
-	
-#pragma push
-#pragma O0
+//#pragma push
+//#pragma O0
 
 #include "main.h"
 #include "stm32f4xx_hal.h"
@@ -47,11 +46,19 @@
 
 
 /*
-Constants
+Constants 
 */
 #define M_PI	3.16159265358979323846
 #define T_SEC	12288000
-#define V_VCC	3.3
+#define V_VCC	2.5
+
+#define SCS_BaseVoltage	0x83E // V = 1.7
+#define SCS_InitialVoltage	0xC1E // V = 2.5
+#define SCS_UpperlVoltage	0xFFF // V = 3.3
+#define SCS_VoltageAmplitude	0x7C1 // V = 1.6
+
+#define SCS_SignalPeriod 0x5FF
+
 
 /*
 Controls
@@ -68,7 +75,7 @@ Sensitivity
 #define SCS_MaximumAngleSensitivity_Normal	30
 #define SCS_MaximumAngleSensitivity_Hight	20
 
-#define SCS_SaveAngleSensitivity	10
+#define SCS_SaveAngleSensitivity	5
 
 /*
 Sensitivity settings
@@ -313,10 +320,10 @@ void sensitivitySetting();
 struct AngleOfRotationXYZAxis xyzStartAngles = {sizeof(float),
 																								sizeof(float),
 																								sizeof(float)};
-
 int maximumAngleSensitivity = SCS_MaximumAngleSensitivity_Normal;
 int controlFlag = SCS_Sensor_isEnable;
 
+																								
 void TIM3_IRQHandler()
 {
 	HAL_TIM_IRQHandler(&htim3);
@@ -336,13 +343,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 	}
 	else if (TIM2 == htim->Instance)
 	{
-		// TODO: Переписать условие через сумму
-		float left = straightMotionVoltageADC();
-		float right = sidewaysMotionVoltageADC();
-		if (V_VCC / 2 - SCS_ADCVoltageDelta > straightMotionVoltageADC()
-				|| V_VCC / 2 + SCS_ADCVoltageDelta < straightMotionVoltageADC()
-				|| V_VCC / 2 - SCS_ADCVoltageDelta > sidewaysMotionVoltageADC()
-				|| V_VCC / 2 + SCS_ADCVoltageDelta < sidewaysMotionVoltageADC())
+		float sumOfVoltages = straightMotionVoltageADC();
+		sumOfVoltages += sidewaysMotionVoltageADC();
+		if (2 * V_VCC - SCS_ADCVoltageDelta > sumOfVoltages
+				|| 2 * V_VCC + SCS_ADCVoltageDelta < sumOfVoltages)
 		{
 			controlFlag = SCS_Joystick_isEnable;
 			synchronousDelay();
@@ -364,9 +368,15 @@ int main(void)
 	MX_I2C1_Init();
 	MX_TIM1_Init();
 	MX_TIM2_Init();
-//	MX_TIM3_Init();
-
+	MX_TIM3_Init();
+	
+	straightDACWithDACValue(SCS_InitialVoltage);
+	sidewaysDACWithDACValue(SCS_InitialVoltage);
+	
+	synchronousDelay();
+	
 	prepareI2C();
+	
 	xyzStartAngles = createStartAngleOfRotation();
 	while (1)
   {
@@ -387,7 +397,7 @@ int main(void)
 			straightMotionDACWithCurrentAngel(xyzStartAngles.xAngle);
 			sidewaysMotionDACWithCurrentAngel(xyzStartAngles.zAngle);
 			startTimer();
-			speakerWithSignalPeriod(0x5FF);
+			speakerWithSignalPeriod(SCS_SignalPeriod);
 			while (SCS_DisableAll == controlFlag);
 		}
   }
@@ -548,20 +558,18 @@ void emergencyTrackingWithCurrentAngels(float currentAngel_X, float currentAngel
 
 int convertAngelToDACValue(float currentAngel)
 {	
-	int fullScale = 0xFFF;
-//	return fullScale / 2;
 	if (currentAngel > maximumAngleSensitivity)
 	{
-		return fullScale;
+		return SCS_UpperlVoltage;
 	}
 	else if (currentAngel < - maximumAngleSensitivity)
 	{
-		return 0x0;
+		return SCS_BaseVoltage;
 	}
 	else if (currentAngel < SCS_SaveAngleSensitivity 
 						&& currentAngel > - SCS_SaveAngleSensitivity)
 	{
-		return fullScale / 2;
+		return SCS_InitialVoltage;
 	}
 	
 	int saveAngle = 0;
@@ -573,7 +581,7 @@ int convertAngelToDACValue(float currentAngel)
 	{
 		saveAngle = - SCS_SaveAngleSensitivity;
 	}
-	return fullScale / 2 * (1 + ((currentAngel - saveAngle) / (maximumAngleSensitivity - SCS_SaveAngleSensitivity)));
+	return SCS_BaseVoltage + SCS_InitialVoltage / 2 * (1 + ((currentAngel - saveAngle) / (maximumAngleSensitivity - SCS_SaveAngleSensitivity)));
 }
 
 float convertCurrentXAngelToSignalPeriod(float currentXAngel)
@@ -597,7 +605,7 @@ void signalsWithNumberOfSignals(int numberOfSignals)
 	for(int currentSignalNumber = 0; currentSignalNumber < numberOfSignals; ++currentSignalNumber)
 	{
 		startTimer();
-		speakerWithSignalPeriod(0x5FF);
+		speakerWithSignalPeriod(SCS_SignalPeriod);
 		synchronousDelay();
 		
 		stopTimer();
@@ -828,7 +836,7 @@ void prepareI2C()
 		for(int i=0; i<0xFF; i++){}
 }
 
-#pragma pop
+//#pragma pop
 
 /* Конфигурация тактирования */
 void SystemClock_Config(void)
