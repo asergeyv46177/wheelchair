@@ -37,14 +37,25 @@
 
 /* USER CODE BEGIN 0 */
 
-/* External variables --------------------------------------------------------*/
-extern ADC_HandleTypeDef hadc1;
-extern ADC_HandleTypeDef hadc2;
-
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
+extern TIM_HandleTypeDef htim2;
+extern TIM_HandleTypeDef htim3;
+extern int controlFlag;
+extern float (*straightMotionVoltageADCPointer)();
+extern float (*sidewaysMotionVoltageADCPointer)();
+extern void (*signalsWithNumberOfSignalsPointer)(int);
 
+#define SCS_Joystick_isEnable	0x2
+#define SCS_DisableAll	0x4
+
+#define SCS_BaseVoltage	0x98C // V = 1.96
+#define SCS_InitialVoltage	0xD00//((0xcc5)0xC1E) // V = 2.63
+#define SCS_UpperlVoltage	0xFFF // V = 3.3
+#define SCS_VoltageRange	0x67E // V = 1.34
+#define SCS_VoltageAmplitude	0x33F // V = 0.67
+#define SCS_ADCVoltageDelta	0.5 
 /******************************************************************************/
 /*            Cortex-M4 Processor Interruption and Exception Handlers         */ 
 /******************************************************************************/
@@ -194,6 +205,41 @@ void SysTick_Handler(void)
 /* For the available peripheral interrupt handler names,                      */
 /* please refer to the startup file (startup_stm32f4xx.s).                    */
 /******************************************************************************/
+
+/**
+* @brief This function handles TIM2 global interrupt.
+*/
+void TIM2_IRQHandler(void)
+{
+  /* USER CODE BEGIN TIM2_IRQn 0 */
+
+  /* USER CODE END TIM2_IRQn 0 */
+  HAL_TIM_IRQHandler(&htim2);
+  /* USER CODE BEGIN TIM2_IRQn 1 */
+		float sumOfVoltages = straightMotionVoltageADCPointer();
+		sumOfVoltages += sidewaysMotionVoltageADCPointer();
+		if (5.5 - SCS_ADCVoltageDelta > sumOfVoltages
+				|| 5.5 + SCS_ADCVoltageDelta < sumOfVoltages)
+		{
+			controlFlag = SCS_Joystick_isEnable;
+			signalsWithNumberOfSignalsPointer(1);
+		}
+  /* USER CODE END TIM2_IRQn 1 */
+}
+
+/**
+* @brief This function handles TIM3 global interrupt.
+*/
+void TIM3_IRQHandler(void)
+{
+  /* USER CODE BEGIN TIM3_IRQn 0 */
+
+  /* USER CODE END TIM3_IRQn 0 */
+  HAL_TIM_IRQHandler(&htim3);
+  /* USER CODE BEGIN TIM3_IRQn 1 */
+	controlFlag = SCS_DisableAll;
+  /* USER CODE END TIM3_IRQn 1 */
+}
 
 /* USER CODE BEGIN 1 */
 

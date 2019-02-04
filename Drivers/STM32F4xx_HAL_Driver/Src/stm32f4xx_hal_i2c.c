@@ -5227,6 +5227,9 @@ static void I2C_DMAAbort(DMA_HandleTypeDef *hdma)
   * @param  Tickstart Tick start value
   * @retval HAL status
   */
+
+#include "MPU6050.h"
+
 static HAL_StatusTypeDef I2C_WaitOnFlagUntilTimeout(I2C_HandleTypeDef *hi2c, uint32_t Flag, FlagStatus Status, uint32_t Timeout, uint32_t Tickstart)
 {
   /* Wait until flag is set */
@@ -5240,7 +5243,11 @@ static HAL_StatusTypeDef I2C_WaitOnFlagUntilTimeout(I2C_HandleTypeDef *hi2c, uin
         hi2c->PreviousState = I2C_STATE_NONE;
         hi2c->State= HAL_I2C_STATE_READY;
         hi2c->Mode = HAL_I2C_MODE_NONE;
-
+				hi2c->Instance->CR1 = I2C_CR1_STOP;
+				
+				while (HAL_I2C_IsDeviceReady(hi2c, MPU6050_DEFAULT_ADDRESS, 5, 10) != HAL_OK) __asm__ ("NOP");
+				Initialize();
+				
         /* Process Unlocked */
         __HAL_UNLOCK(hi2c);
         
